@@ -8,9 +8,11 @@ const compat = new FlatCompat({
   baseDirectory: __dirname
 });
 
-export default [
+const config = [
   ...compat.extends("next/core-web-vitals", "next/typescript", "prettier"),
   {
-    ignores: [".next/**", "coverage/**"]
+    ignores: [".next/**", "coverage/**", "next-env.d.ts"]
   }
 ];
+
+export default config;

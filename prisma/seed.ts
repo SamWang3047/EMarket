@@ -97,7 +97,8 @@ async function main() {
       },
       {
         name: "Productivity Notebook",
-        description: "Dot-grid notebook for planning and architecture sketches.",
+        description:
+          "Dot-grid notebook for planning and architecture sketches.",
         price: 1900,
         stock: 60,
         imageUrl: "https://images.unsplash.com/photo-1531346878377-a5be20888e57"
@@ -135,7 +136,9 @@ async function main() {
     }
   });
 
-  console.log(`Seed complete. Admin user: ${adminUser.email}, customer user: ${customerUser.email}`);
+  console.log(
+    `Seed complete. Admin user: ${adminUser.email}, customer user: ${customerUser.email}`
+  );
 }
 
 main()
