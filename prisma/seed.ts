@@ -30,10 +30,16 @@ async function main() {
     }
   });
 
+  await prisma.cartItem.deleteMany();
+  await prisma.orderItem.deleteMany();
+  await prisma.order.deleteMany();
+  await prisma.product.deleteMany();
+
   await prisma.product.createMany({
     data: [
       {
         name: "Mechanical Keyboard",
+        category: "KEYBOARDS",
         description: "Hot-swappable keyboard with tactile switches.",
         price: 12900,
         stock: 18,
@@ -41,6 +47,7 @@ async function main() {
       },
       {
         name: "Wireless Mouse",
+        category: "MICE",
         description: "Ergonomic mouse with programmable buttons.",
         price: 5900,
         stock: 35,
@@ -48,6 +55,7 @@ async function main() {
       },
       {
         name: "4K Monitor",
+        category: "MONITORS",
         description: "27-inch monitor calibrated for designers and developers.",
         price: 32900,
         stock: 12,
@@ -55,6 +63,7 @@ async function main() {
       },
       {
         name: "USB-C Dock",
+        category: "DESK_SETUP",
         description: "Single-cable docking station for laptops.",
         price: 8900,
         stock: 22,
@@ -62,6 +71,7 @@ async function main() {
       },
       {
         name: "Noise Cancelling Headphones",
+        category: "AUDIO",
         description: "Over-ear headphones for focused work sessions.",
         price: 19900,
         stock: 16,
@@ -69,6 +79,7 @@ async function main() {
       },
       {
         name: "Laptop Stand",
+        category: "DESK_SETUP",
         description: "Aluminium stand for better posture and cooling.",
         price: 3900,
         stock: 40,
@@ -76,6 +87,7 @@ async function main() {
       },
       {
         name: "Webcam",
+        category: "DESK_SETUP",
         description: "1080p webcam with dual microphones.",
         price: 7200,
         stock: 27,
@@ -83,6 +95,7 @@ async function main() {
       },
       {
         name: "Portable SSD",
+        category: "STORAGE",
         description: "Fast external storage for backups and media.",
         price: 14900,
         stock: 31,
@@ -90,6 +103,7 @@ async function main() {
       },
       {
         name: "Desk Lamp",
+        category: "DESK_SETUP",
         description: "Warm adjustable light with USB charging.",
         price: 4500,
         stock: 25,
@@ -97,6 +111,7 @@ async function main() {
       },
       {
         name: "Productivity Notebook",
+        category: "DESK_SETUP",
         description:
           "Dot-grid notebook for planning and architecture sketches.",
         price: 1900,

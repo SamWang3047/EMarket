@@ -20,6 +20,15 @@ enum OrderStatus {
   CANCELLED
 }
 
+enum ProductCategory {
+  KEYBOARDS
+  MICE
+  MONITORS
+  AUDIO
+  STORAGE
+  DESK_SETUP
+}
+
 model User {
   id           String     @id @default(uuid())
   email        String     @unique
@@ -37,6 +46,7 @@ model User {
 model Product {
   id          String      @id @default(uuid())
   name        String
+  category    ProductCategory @default(DESK_SETUP)
   description String?     @db.Text
   price       Int
   stock       Int         @default(0)
