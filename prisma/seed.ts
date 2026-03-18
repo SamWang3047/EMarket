@@ -3,6 +3,12 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 async function main() {
+  await prisma.cartItem.deleteMany();
+  await prisma.orderItem.deleteMany();
+  await prisma.order.deleteMany();
+  await prisma.product.deleteMany();
+  await prisma.user.deleteMany();
+
   const adminUser = await prisma.user.upsert({
     where: {
       email: "admin@emarket.local"
@@ -29,11 +35,6 @@ async function main() {
       lastName: "Customer"
     }
   });
-
-  await prisma.cartItem.deleteMany();
-  await prisma.orderItem.deleteMany();
-  await prisma.order.deleteMany();
-  await prisma.product.deleteMany();
 
   await prisma.product.createMany({
     data: [
