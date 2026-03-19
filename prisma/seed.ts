@@ -155,9 +155,8 @@ async function main() {
     }
   });
 
-  console.log(
-    `Seed complete. Admin user: ${adminUser.email}, customer user: ${customerUser.email}`
-  );
+  void adminUser;
+  void customerUser;
 }
 
 main()
