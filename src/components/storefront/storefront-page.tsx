@@ -1,7 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { useDeferredValue, useState, useTransition } from "react";
 import { ShoppingBag } from "lucide-react";
+import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -13,6 +15,7 @@ import {
 } from "@/lib/constants";
 import { useProducts } from "@/hooks/use-products";
 import { cn } from "@/lib/utils";
+import { getCartCount, useCartStore } from "@/stores/cart-store";
 import type { Product } from "@/types/product";
 
 const PAGE_SIZE = 6;
@@ -25,6 +28,8 @@ function formatCurrency(priceInCents: number) {
 }
 
 function ProductCard({ product }: { product: Product }) {
+  const addItem = useCartStore((state) => state.addItem);
+
   return (
     <Card className="overflow-hidden bg-[color:var(--surface-strong)]">
       <div className="relative aspect-[4/3] overflow-hidden border-b border-[color:var(--border)] bg-[linear-gradient(145deg,rgba(217,187,164,0.32),rgba(255,255,255,0.84))]">
@@ -61,7 +66,16 @@ function ProductCard({ product }: { product: Product }) {
         </div>
         <div className="flex items-center justify-between text-sm text-[var(--muted)]">
           <span>{product.stock} in stock</span>
-          <Button size="sm">Add to cart</Button>
+          <Button
+            size="sm"
+            onClick={() => {
+              addItem(product);
+              toast.success(`${product.name} added to cart.`);
+            }}
+            disabled={product.stock <= 0}
+          >
+            Add to cart
+          </Button>
         </div>
       </CardContent>
     </Card>
@@ -104,9 +118,11 @@ export function StorefrontPage() {
     pageSize: PAGE_SIZE,
     category: deferredCategory
   });
+  const cartItems = useCartStore((state) => state.items);
 
   const products = data?.items ?? [];
   const pagination = data?.pagination;
+  const cartCount = getCartCount(cartItems);
 
   const handleCategoryChange = (category?: ProductCategory) => {
     startTransition(() => {
@@ -132,34 +148,38 @@ export function StorefrontPage() {
               </h1>
             </div>
           </div>
-          <div className="flex items-center gap-3 rounded-full border border-[color:var(--border)] bg-white/65 px-4 py-3 text-sm text-[var(--muted)]">
-            <ShoppingBag className="h-4 w-4" />
-            <span>
-              Cart UI lands on Day 5. API and inventory flow are ready.
-            </span>
-          </div>
+          <Link href="/checkout">
+            <div className="flex items-center gap-3 rounded-full border border-[color:var(--border)] bg-white/65 px-4 py-3 text-sm text-[var(--muted)] transition hover:bg-white">
+              <ShoppingBag className="h-4 w-4" />
+              <span>
+                {cartCount} item{cartCount === 1 ? "" : "s"} in cart
+              </span>
+            </div>
+          </Link>
         </div>
       </header>
 
       <section className="grid gap-6 xl:grid-cols-[minmax(0,1.25fr)_minmax(420px,0.95fr)]">
         <Card className="overflow-hidden">
           <CardContent className="space-y-5 p-6 md:p-8">
-            <Badge>Day 4</Badge>
+            <Badge>Day 5</Badge>
             <div className="space-y-4">
               <h2 className="max-w-3xl text-4xl font-semibold leading-none tracking-tight text-[var(--text)] md:text-6xl">
-                Responsive catalog with real API data and a front-end shape that
-                scales.
+                Browse, add to cart, persist locally, and move into checkout
+                without breaking the engineering shape.
               </h2>
               <p className="max-w-2xl text-base leading-7 text-[var(--muted)] md:text-lg">
-                React Query owns data-fetching, the UI stays focused on
-                rendering, and the page is ready for cart and checkout flows
-                without rewiring the data layer.
+                The catalog is still API-backed through React Query, but the
+                page now carries a real shopping cart state and leads into the
+                Day 5 checkout flow.
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
-              <Button size="lg">Browse collection</Button>
+              <Link href="/checkout">
+                <Button size="lg">Go to checkout</Button>
+              </Link>
               <Button variant="secondary" size="lg">
-                API-backed filters
+                API-backed catalog
               </Button>
             </div>
           </CardContent>
@@ -169,20 +189,20 @@ export function StorefrontPage() {
           <CardContent className="grid gap-5 p-6 md:grid-cols-2 md:p-8">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--accent)]">
-                Data strategy
+                Cart strategy
               </p>
               <p className="mt-3 text-sm leading-7 text-[var(--muted)]">
-                `useProducts` encapsulates pagination and category filtering,
-                keeping components declarative.
+                Zustand owns cart state, and `persist` keeps it in local storage
+                so the flow survives refreshes.
               </p>
             </div>
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--accent)]">
-                Rendering strategy
+                Checkout strategy
               </p>
               <p className="mt-3 text-sm leading-7 text-[var(--muted)]">
-                Deferred category updates and loading skeletons keep transitions
-                feeling intentional instead of jarring.
+                Checkout posts to the real order transaction from Day 3 and
+                surfaces success through toast plus redirect.
               </p>
             </div>
           </CardContent>
@@ -248,9 +268,8 @@ export function StorefrontPage() {
             <div className="flex flex-col gap-3 rounded-[28px] border border-[color:var(--border)] bg-[color:var(--surface)] px-5 py-4 shadow-[var(--shadow)] md:flex-row md:items-center md:justify-between">
               <p className="text-sm text-[var(--muted)]">
                 Showing page {pagination?.page ?? 1} of{" "}
-                {pagination?.totalPages ?? 1}
-                {" · "}
-                {pagination?.total ?? 0} products
+                {pagination?.totalPages ?? 1} · {pagination?.total ?? 0}{" "}
+                products
               </p>
               <div className="flex gap-2">
                 <Button

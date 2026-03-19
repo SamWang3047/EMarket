@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { DEMO_ADMIN_ID, DEMO_CUSTOMER_ID } from "../src/lib/demo-user";
 
 const prisma = new PrismaClient();
 
@@ -15,6 +16,7 @@ async function main() {
     },
     update: {},
     create: {
+      id: DEMO_ADMIN_ID,
       email: "admin@emarket.local",
       passwordHash: "seeded-admin-password-hash",
       firstName: "Admin",
@@ -29,6 +31,7 @@ async function main() {
     },
     update: {},
     create: {
+      id: DEMO_CUSTOMER_ID,
       email: "customer@emarket.local",
       passwordHash: "seeded-customer-password-hash",
       firstName: "Demo",
