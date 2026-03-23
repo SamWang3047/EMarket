@@ -33,25 +33,25 @@ export function CartSheet() {
       <SheetTrigger asChild>
         <Button
           variant="secondary"
-          className="rounded-full border-[color:var(--border)] bg-white/70"
+          className="rounded-full border-[color:var(--border)] bg-white/80"
         >
           <ShoppingBag className="mr-2 h-4 w-4" />
-          {itemCount} item{itemCount === 1 ? "" : "s"}
+          Bag ({itemCount})
         </Button>
       </SheetTrigger>
       <SheetContent className="sm:max-w-lg">
         <SheetHeader>
-          <SheetTitle>Cart</SheetTitle>
+          <SheetTitle>Your bag</SheetTitle>
           <SheetDescription>
-            Local state is persisted with Zustand. The checkout page posts to
-            the real transactional order API.
+            Adjust quantities here, then move straight into checkout.
           </SheetDescription>
         </SheetHeader>
 
         <div className="flex-1 overflow-y-auto px-6 pb-6">
           {!items.length ? (
             <div className="rounded-3xl border border-dashed border-[color:var(--border)] bg-white/60 p-8 text-center text-sm leading-6 text-[var(--muted)]">
-              Your cart is empty. Add a few products and continue to checkout.
+              Your bag is empty. Pick a few desk essentials and they will show
+              up here instantly.
             </div>
           ) : (
             <div className="space-y-4">
@@ -137,18 +137,20 @@ export function CartSheet() {
 
         <SheetFooter className="border-t border-[color:var(--border)] bg-[color:var(--surface)]">
           <div className="w-full space-y-4">
-            <div className="flex items-center justify-between text-sm text-[var(--muted)]">
-              <span>Subtotal</span>
-              <span>{formatCurrency(subtotal)}</span>
+            <div className="rounded-2xl bg-white/70 p-4">
+              <div className="flex items-center justify-between text-sm text-[var(--muted)]">
+                <span>Items</span>
+                <span>{itemCount}</span>
+              </div>
+              <div className="mt-2 flex items-center justify-between text-base font-semibold text-[var(--text)]">
+                <span>Subtotal</span>
+                <span>{formatCurrency(subtotal)}</span>
+              </div>
             </div>
             <Separator />
-            <div className="flex gap-3">
-              <Link href="/checkout" className="flex-1">
-                <Button className="w-full" disabled={!items.length}>
-                  Go to checkout
-                </Button>
-              </Link>
-            </div>
+            <Button asChild className="w-full" disabled={!items.length}>
+              <Link href="/checkout">Checkout</Link>
+            </Button>
           </div>
         </SheetFooter>
       </SheetContent>
