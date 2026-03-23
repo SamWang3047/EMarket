@@ -1,17 +1,30 @@
 "use client";
 
 import Link from "next/link";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { z } from "zod";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { CATEGORY_LABELS } from "@/lib/constants";
 import { DEMO_CUSTOMER_ID } from "@/lib/demo-user";
+import { formatCurrency } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import {
   getCartCount,
@@ -19,17 +32,12 @@ import {
   useCartStore
 } from "@/stores/cart-store";
 
-type CheckoutFormValues = {
-  fullName: string;
-  shippingAddress: string;
-};
+const checkoutFormSchema = z.object({
+  fullName: z.string().trim().min(2, "Full name is required."),
+  shippingAddress: z.string().trim().min(8, "Shipping address is too short.")
+});
 
-function formatCurrency(priceInCents: number) {
-  return new Intl.NumberFormat("en-AU", {
-    style: "currency",
-    currency: "AUD"
-  }).format(priceInCents / 100);
-}
+type CheckoutFormValues = z.infer<typeof checkoutFormSchema>;
 
 export function CheckoutPage() {
   const router = useRouter();
@@ -39,19 +47,15 @@ export function CheckoutPage() {
   const clearCart = useCartStore((state) => state.clearCart);
   const itemCount = getCartCount(items);
   const subtotal = getCartSubtotal(items);
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting }
-  } = useForm<CheckoutFormValues>({
+  const form = useForm<CheckoutFormValues>({
+    resolver: zodResolver(checkoutFormSchema),
     defaultValues: {
       fullName: "Demo Customer",
       shippingAddress: "48 Harbour Street, Sydney NSW 2000"
     }
   });
 
-  const onSubmit = handleSubmit(async (values) => {
+  const onSubmit = form.handleSubmit(async (values) => {
     if (!items.length) {
       toast.error("Your cart is empty.");
       return;
@@ -93,19 +97,18 @@ export function CheckoutPage() {
   });
 
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-[1400px] flex-col gap-8 px-4 py-5 md:px-8 md:py-8">
-      <header className="rounded-[32px] border border-[color:var(--border)] bg-[color:var(--surface)] px-5 py-5 shadow-[var(--shadow)] backdrop-blur-xl md:px-7">
+    <main className="mx-auto flex min-h-screen w-full max-w-[1440px] flex-col gap-8 px-4 py-5 md:px-8 md:py-8">
+      <header className="rounded-3xl border border-[color:var(--border)] bg-[color:var(--surface)] px-5 py-5 shadow-[var(--shadow)] backdrop-blur-xl md:px-7">
         <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
           <div className="space-y-3">
-            <Badge>Day 5</Badge>
+            <Badge>Checkout</Badge>
             <div>
               <h1 className="text-3xl font-semibold tracking-tight text-[var(--text)] md:text-4xl">
-                Checkout
+                Confirm order
               </h1>
               <p className="mt-2 max-w-2xl text-sm leading-7 text-[var(--muted)]">
-                Cart state is persisted locally. Orders go through the real
-                inventory transaction from Day 3 using a fixed demo customer
-                identity.
+                The form is wired through react-hook-form and zod, while the
+                backend still owns transactional inventory safety.
               </p>
             </div>
           </div>
@@ -116,7 +119,7 @@ export function CheckoutPage() {
       </header>
 
       <section className="grid gap-6 xl:grid-cols-[minmax(0,1.1fr)_420px]">
-        <Card>
+        <Card className="border-[color:var(--border)] bg-white/80">
           <CardContent className="space-y-5 p-6 md:p-8">
             <div className="flex items-center justify-between">
               <div>
@@ -127,26 +130,26 @@ export function CheckoutPage() {
                   {itemCount} item{itemCount === 1 ? "" : "s"} ready to checkout
                 </h2>
               </div>
-              <div className="flex items-center gap-3 rounded-full border border-[color:var(--border)] bg-white/70 px-4 py-2 text-sm text-[var(--muted)]">
+              <div className="flex items-center gap-3 rounded-full border border-[color:var(--border)] bg-white px-4 py-2 text-sm text-[var(--muted)]">
                 <ShoppingBag className="h-4 w-4" />
                 <span>{formatCurrency(subtotal)}</span>
               </div>
             </div>
 
             {!items.length ? (
-              <div className="rounded-[28px] border border-dashed border-[color:var(--border)] bg-white/55 p-8 text-center text-sm text-[var(--muted)]">
-                Your cart is empty. Add a few products from the storefront to
-                test the full checkout flow.
+              <div className="rounded-3xl border border-dashed border-[color:var(--border)] bg-white/55 p-8 text-center text-sm leading-6 text-[var(--muted)]">
+                Your cart is empty. Add products from the storefront to test the
+                complete checkout flow.
               </div>
             ) : (
               <div className="space-y-4">
                 {items.map((item) => (
                   <div
                     key={item.productId}
-                    className="flex flex-col gap-4 rounded-[28px] border border-[color:var(--border)] bg-[color:var(--surface-strong)] p-4 md:flex-row md:items-center md:justify-between"
+                    className="rounded-3xl border border-[color:var(--border)] bg-[color:var(--surface-strong)] p-4"
                   >
-                    <div className="flex items-center gap-4">
-                      <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-[22px] bg-[linear-gradient(145deg,rgba(217,187,164,0.32),rgba(255,255,255,0.84))]">
+                    <div className="flex items-start gap-4">
+                      <div className="h-20 w-20 overflow-hidden rounded-2xl bg-[linear-gradient(145deg,rgba(217,187,164,0.32),rgba(255,255,255,0.84))]">
                         {item.imageUrl ? (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img
@@ -155,24 +158,36 @@ export function CheckoutPage() {
                             className="h-full w-full object-cover"
                           />
                         ) : (
-                          <ShoppingBag className="h-5 w-5 text-[var(--muted)]" />
+                          <div className="flex h-full items-center justify-center text-[var(--muted)]">
+                            <ShoppingBag className="h-5 w-5" />
+                          </div>
                         )}
                       </div>
-                      <div>
-                        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--accent)]">
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--accent)]">
                           {CATEGORY_LABELS[item.category]}
                         </p>
-                        <h3 className="mt-2 text-lg font-semibold text-[var(--text)]">
+                        <h3 className="mt-2 truncate text-lg font-semibold text-[var(--text)]">
                           {item.name}
                         </h3>
                         <p className="mt-1 text-sm text-[var(--muted)]">
                           {formatCurrency(item.price)} each
                         </p>
                       </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 rounded-full p-0"
+                        onClick={() => removeItem(item.productId)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-3">
-                      <div className="flex items-center gap-2 rounded-full border border-[color:var(--border)] bg-white px-2 py-2">
+                    <Separator className="my-4" />
+
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 rounded-full border border-[color:var(--border)] bg-white px-2 py-1">
                         <Button
                           variant="ghost"
                           size="sm"
@@ -202,19 +217,9 @@ export function CheckoutPage() {
                           <Plus className="h-4 w-4" />
                         </Button>
                       </div>
-
-                      <div className="min-w-28 text-right text-sm font-semibold text-[var(--text)]">
+                      <div className="text-sm font-semibold text-[var(--text)]">
                         {formatCurrency(item.price * item.quantity)}
                       </div>
-
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        onClick={() => removeItem(item.productId)}
-                      >
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        Remove
-                      </Button>
                     </div>
                   </div>
                 ))}
@@ -223,88 +228,85 @@ export function CheckoutPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-[color:var(--border)] bg-[color:var(--surface-strong)]">
           <CardContent className="space-y-6 p-6 md:p-8">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--accent)]">
                 Delivery details
               </p>
               <h2 className="mt-2 text-2xl font-semibold text-[var(--text)]">
-                Confirm order
+                Shipping information
               </h2>
             </div>
 
-            <form className="space-y-5" onSubmit={onSubmit}>
-              <div className="space-y-2">
-                <label
-                  className="text-sm font-medium text-[var(--text)]"
-                  htmlFor="fullName"
-                >
-                  Full name
-                </label>
-                <Input
-                  id="fullName"
-                  placeholder="Jane Doe"
-                  {...register("fullName", {
-                    required: "Full name is required."
-                  })}
+            <Form {...form}>
+              <form className="space-y-5" onSubmit={onSubmit}>
+                <FormField
+                  control={form.control}
+                  name="fullName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Full name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Jane Doe" {...field} />
+                      </FormControl>
+                      <FormDescription>
+                        Demo checkout assumes the user is already authenticated.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-                {errors.fullName ? (
-                  <p className="text-sm text-[var(--accent-strong)]">
-                    {errors.fullName.message}
-                  </p>
-                ) : null}
-              </div>
 
-              <div className="space-y-2">
-                <label
-                  className="text-sm font-medium text-[var(--text)]"
-                  htmlFor="shippingAddress"
-                >
-                  Shipping address
-                </label>
-                <Textarea
-                  id="shippingAddress"
-                  placeholder="Street, suburb, city, postcode"
-                  {...register("shippingAddress", {
-                    required: "Shipping address is required.",
-                    minLength: {
-                      value: 5,
-                      message: "Shipping address is too short."
-                    }
-                  })}
+                <FormField
+                  control={form.control}
+                  name="shippingAddress"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Shipping address</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Street, suburb, city, postcode"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        The address is saved on the order as a purchase-time
+                        snapshot.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-                {errors.shippingAddress ? (
-                  <p className="text-sm text-[var(--accent-strong)]">
-                    {errors.shippingAddress.message}
-                  </p>
-                ) : null}
-              </div>
 
-              <div className="rounded-[28px] border border-[color:var(--border)] bg-white/60 p-4">
-                <div className="flex items-center justify-between text-sm text-[var(--muted)]">
-                  <span>Subtotal</span>
-                  <span>{formatCurrency(subtotal)}</span>
+                <div className="rounded-3xl border border-[color:var(--border)] bg-white/70 p-4">
+                  <div className="flex items-center justify-between text-sm text-[var(--muted)]">
+                    <span>Subtotal</span>
+                    <span>{formatCurrency(subtotal)}</span>
+                  </div>
+                  <div className="mt-2 flex items-center justify-between text-sm text-[var(--muted)]">
+                    <span>Shipping</span>
+                    <span>Included</span>
+                  </div>
+                  <Separator className="my-4" />
+                  <div className="flex items-center justify-between text-base font-semibold text-[var(--text)]">
+                    <span>Total</span>
+                    <span>{formatCurrency(subtotal)}</span>
+                  </div>
                 </div>
-                <div className="mt-2 flex items-center justify-between text-sm text-[var(--muted)]">
-                  <span>Shipping</span>
-                  <span>Included</span>
-                </div>
-                <div className="mt-4 flex items-center justify-between border-t border-[color:var(--border)] pt-4 text-base font-semibold text-[var(--text)]">
-                  <span>Total</span>
-                  <span>{formatCurrency(subtotal)}</span>
-                </div>
-              </div>
 
-              <Button
-                type="submit"
-                size="lg"
-                className={cn("w-full", !items.length && "opacity-60")}
-                disabled={!items.length || isSubmitting}
-              >
-                {isSubmitting ? "Placing order..." : "Place order"}
-              </Button>
-            </form>
+                <Button
+                  type="submit"
+                  size="lg"
+                  className={cn("w-full", !items.length && "opacity-60")}
+                  disabled={!items.length || form.formState.isSubmitting}
+                >
+                  {form.formState.isSubmitting
+                    ? "Placing order..."
+                    : "Place order"}
+                </Button>
+              </form>
+            </Form>
           </CardContent>
         </Card>
       </section>
