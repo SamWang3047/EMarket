@@ -82,7 +82,10 @@ export const useCartStore = create<CartState>()(
     }),
     {
       name: "emarket-cart",
-      storage: createJSONStorage(() => localStorage)
+      storage: createJSONStorage(() => localStorage),
+      partialize: (state) => ({
+        items: state.items
+      })
     }
   )
 );

@@ -10,13 +10,13 @@ import {
   PackageCheck,
   Plus,
   ShieldCheck,
-  ShoppingBag,
   Trash2,
   Truck
 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { toast } from "sonner";
+import { ProductImage } from "@/components/product/product-image";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -291,18 +291,11 @@ export function CheckoutPage() {
                   >
                     <div className="flex items-start gap-4">
                       <div className="h-20 w-20 overflow-hidden rounded-2xl bg-[linear-gradient(145deg,rgba(217,187,164,0.32),rgba(255,255,255,0.84))]">
-                        {item.imageUrl ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            src={item.imageUrl}
-                            alt={item.name}
-                            className="h-full w-full object-cover"
-                          />
-                        ) : (
-                          <div className="flex h-full items-center justify-center text-[var(--muted)]">
-                            <ShoppingBag className="h-5 w-5" />
-                          </div>
-                        )}
+                        <ProductImage
+                          alt={item.name}
+                          category={item.category}
+                          imageUrl={item.imageUrl}
+                        />
                       </div>
 
                       <div className="min-w-0 flex-1">

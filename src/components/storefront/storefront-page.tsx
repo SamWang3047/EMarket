@@ -13,6 +13,7 @@ import {
   Truck
 } from "lucide-react";
 import { toast } from "sonner";
+import { ProductImage } from "@/components/product/product-image";
 import { CartSheet } from "@/components/storefront/cart-sheet";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -46,18 +47,12 @@ function ProductCard({ product }: { product: Product }) {
             </span>
           ) : null}
         </div>
-        {product.imageUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={product.imageUrl}
-            alt={product.name}
-            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-          />
-        ) : (
-          <div className="flex h-full items-center justify-center text-sm text-[var(--muted)]">
-            No image available
-          </div>
-        )}
+        <ProductImage
+          alt={product.name}
+          category={product.category}
+          imageUrl={product.imageUrl}
+          imageClassName="transition-transform duration-500 group-hover:scale-[1.03]"
+        />
       </div>
 
       <CardContent className="space-y-4 p-5">

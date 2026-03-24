@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
+import { ProductImage } from "@/components/product/product-image";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -62,18 +63,11 @@ export function CartSheet() {
                 >
                   <div className="flex items-start gap-4">
                     <div className="h-20 w-20 overflow-hidden rounded-2xl bg-[linear-gradient(145deg,rgba(217,187,164,0.32),rgba(255,255,255,0.84))]">
-                      {item.imageUrl ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={item.imageUrl}
-                          alt={item.name}
-                          className="h-full w-full object-cover"
-                        />
-                      ) : (
-                        <div className="flex h-full items-center justify-center text-[var(--muted)]">
-                          <ShoppingBag className="h-5 w-5" />
-                        </div>
-                      )}
+                      <ProductImage
+                        alt={item.name}
+                        category={item.category}
+                        imageUrl={item.imageUrl}
+                      />
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--accent)]">
