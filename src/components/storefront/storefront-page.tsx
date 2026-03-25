@@ -23,7 +23,7 @@ import { useCartStore } from "@/stores/cart-store";
 import type { Product } from "@/types/product";
 
 const PAGE_SIZE = 9;
-const PRODUCT_DIALOG_ANIMATION_MS = 2000;
+const PRODUCT_DIALOG_ANIMATION_MS = 500;
 
 const PRIMARY_NAV = [
   "Product",
@@ -157,80 +157,86 @@ function ProductDetailWindow({
     <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
       <DialogPrimitive.Portal>
         <DialogPrimitive.Overlay
-          className="fixed inset-0 z-50 bg-black/45 backdrop-blur-[2px] transition-opacity ease-out data-[state=closed]:opacity-0 data-[state=open]:opacity-100"
-          style={{ transitionDuration: `${animationMs}ms` }}
+          className="fixed inset-0 z-50 bg-black/45 backdrop-blur-[2px]"
+          style={{
+            animation: `product-dialog-overlay-in ${animationMs}ms ease-out both`
+          }}
         />
-        <DialogPrimitive.Content
-          className="fixed left-1/2 top-1/2 z-50 h-[80vh] w-[80vw] max-h-[920px] max-w-[1400px] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[30px] border border-[color:var(--border)] bg-[linear-gradient(145deg,rgba(255,255,255,0.98),rgba(245,233,223,0.92))] shadow-[0_45px_120px_rgba(16,14,12,0.42)] outline-none transition-[opacity,transform] ease-[cubic-bezier(0.16,1,0.3,1)] data-[state=closed]:scale-[0.72] data-[state=closed]:opacity-0 data-[state=open]:scale-100 data-[state=open]:opacity-100"
-          style={{ transitionDuration: `${animationMs}ms` }}
-        >
-          <div className="grid h-full grid-cols-1 lg:grid-cols-[1.05fr_0.95fr]">
-            <div className="relative h-full min-h-[260px] overflow-hidden border-b border-[color:var(--border)] bg-[linear-gradient(140deg,rgba(255,248,238,0.98),rgba(233,219,207,0.85))] lg:border-b-0 lg:border-r">
-              <div className="absolute left-6 top-6 z-10">
-                <span className="rounded-full bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">
-                  {CATEGORY_LABELS[product.category]}
-                </span>
-              </div>
-              <ProductImage
-                alt={product.name}
-                category={product.category}
-                imageUrl={product.imageUrl}
-                className="h-full w-full"
-                imageClassName="h-full w-full object-cover"
-              />
-            </div>
-
-            <div className="flex h-full flex-col p-6 md:p-8">
-              <DialogPrimitive.Title className="text-3xl font-semibold tracking-tight text-[var(--text)] md:text-4xl">
-                {product.name}
-              </DialogPrimitive.Title>
-              <DialogPrimitive.Description className="mt-4 text-base leading-7 text-[var(--muted)]">
-                {product.description ??
-                  "A practical, durable product for everyday workspace use."}
-              </DialogPrimitive.Description>
-
-              <div className="mt-8 space-y-4 rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface)] p-5">
-                <div className="flex items-center justify-between text-sm text-[var(--muted)]">
-                  <span>Base price</span>
-                  <span>{formatCurrency(product.price)}</span>
+        <DialogPrimitive.Content className="fixed inset-0 z-50 flex items-center justify-center p-4 outline-none pointer-events-none">
+          <div
+            className="pointer-events-auto relative h-[80vh] w-[80vw] max-h-[920px] max-w-[1400px] overflow-hidden rounded-[30px] border border-[color:var(--border)] bg-[linear-gradient(145deg,rgba(255,255,255,0.98),rgba(245,233,223,0.92))] shadow-[0_45px_120px_rgba(16,14,12,0.42)]"
+            style={{
+              animation: `product-dialog-grow-in ${animationMs}ms cubic-bezier(0.16,1,0.3,1) both`
+            }}
+          >
+            <div className="grid h-full grid-cols-1 lg:grid-cols-[1.05fr_0.95fr]">
+              <div className="relative h-full min-h-[260px] overflow-hidden border-b border-[color:var(--border)] bg-[linear-gradient(140deg,rgba(255,248,238,0.98),rgba(233,219,207,0.85))] lg:border-b-0 lg:border-r">
+                <div className="absolute left-6 top-6 z-10">
+                  <span className="rounded-full bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">
+                    {CATEGORY_LABELS[product.category]}
+                  </span>
                 </div>
-                <div className="flex items-center justify-between text-sm text-[var(--muted)]">
-                  <span>Estimated tax (10%)</span>
-                  <span>{formatCurrency(estimatedTax)}</span>
-                </div>
-                <Separator />
-                <div className="flex items-center justify-between text-xl font-semibold text-[var(--text)]">
-                  <span>Total estimate</span>
-                  <span>{formatCurrency(total)}</span>
-                </div>
+                <ProductImage
+                  alt={product.name}
+                  category={product.category}
+                  imageUrl={product.imageUrl}
+                  className="h-full w-full"
+                  imageClassName="h-full w-full object-cover"
+                />
               </div>
 
-              <p className="mt-4 text-sm text-[var(--muted)]">
-                Current stock: {product.stock}
-              </p>
+              <div className="flex h-full flex-col p-6 md:p-8">
+                <DialogPrimitive.Title className="text-3xl font-semibold tracking-tight text-[var(--text)] md:text-4xl">
+                  {product.name}
+                </DialogPrimitive.Title>
+                <DialogPrimitive.Description className="mt-4 text-base leading-7 text-[var(--muted)]">
+                  {product.description ??
+                    "A practical, durable product for everyday workspace use."}
+                </DialogPrimitive.Description>
 
-              <div className="mt-auto flex flex-wrap gap-3 pt-8">
-                <Button
-                  onClick={() => onAdd(product)}
-                  disabled={product.stock <= 0}
-                  size="lg"
-                  className="bg-black text-white shadow-none hover:bg-black/85"
-                >
-                  Add to bag
-                </Button>
-                <DialogPrimitive.Close asChild>
-                  <Button size="lg" variant="secondary">
-                    Close
+                <div className="mt-8 space-y-4 rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface)] p-5">
+                  <div className="flex items-center justify-between text-sm text-[var(--muted)]">
+                    <span>Base price</span>
+                    <span>{formatCurrency(product.price)}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm text-[var(--muted)]">
+                    <span>Estimated tax (10%)</span>
+                    <span>{formatCurrency(estimatedTax)}</span>
+                  </div>
+                  <Separator />
+                  <div className="flex items-center justify-between text-xl font-semibold text-[var(--text)]">
+                    <span>Total estimate</span>
+                    <span>{formatCurrency(total)}</span>
+                  </div>
+                </div>
+
+                <p className="mt-4 text-sm text-[var(--muted)]">
+                  Current stock: {product.stock}
+                </p>
+
+                <div className="mt-auto flex flex-wrap gap-3 pt-8">
+                  <Button
+                    onClick={() => onAdd(product)}
+                    disabled={product.stock <= 0}
+                    size="lg"
+                    className="bg-black text-white shadow-none hover:bg-black/85"
+                  >
+                    Add to bag
                   </Button>
-                </DialogPrimitive.Close>
+                  <DialogPrimitive.Close asChild>
+                    <Button size="lg" variant="secondary">
+                      Close
+                    </Button>
+                  </DialogPrimitive.Close>
+                </div>
               </div>
             </div>
-          </div>
 
-          <DialogPrimitive.Close className="absolute right-4 top-4 rounded-full bg-white/85 p-2 text-[var(--muted)] transition hover:bg-white hover:text-[var(--text)]">
-            <X className="h-5 w-5" />
-            <span className="sr-only">Close</span>
-          </DialogPrimitive.Close>
+            <DialogPrimitive.Close className="absolute right-4 top-4 rounded-full bg-white/85 p-2 text-[var(--muted)] transition hover:bg-white hover:text-[var(--text)]">
+              <X className="h-5 w-5" />
+              <span className="sr-only">Close</span>
+            </DialogPrimitive.Close>
+          </div>
         </DialogPrimitive.Content>
       </DialogPrimitive.Portal>
     </DialogPrimitive.Root>
