@@ -31,6 +31,9 @@ import type { Product } from "@/types/product";
 
 const PAGE_SIZE = 9;
 const PRODUCT_DIALOG_ANIMATION_MS = 500;
+const SHOWCASE_TRIGGER_VIEWPORT_RATIO = 0.82;
+const SHOWCASE_WHEEL_SENSITIVITY = 0.0012;
+const SHOWCASE_WHEEL_MAX_STEP = 0.08;
 
 const PRIMARY_NAV = [
   "Product",
@@ -257,6 +260,8 @@ function ProductDetailWindow({
 
 export function StorefrontPage() {
   const showcaseRef = useRef<HTMLElement | null>(null);
+  const showcaseProgressRef = useRef(0);
+  const showcaseDirectionRef = useRef<"forward" | "reverse">("forward");
   const [page, setPage] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState<
     ProductCategory | undefined
@@ -361,9 +366,13 @@ export function StorefrontPage() {
   };
 
   useEffect(() => {
-    let raf = 0;
+    const onWheel = (event: WheelEvent) => {
+      if (activeView !== "Home" || isProductDialogOpen) {
+        return;
+      }
 
-    const updateProgress = () => {
+      const directionState = showcaseDirectionRef.current;
+
       const section = showcaseRef.current;
 
       if (!section) {
@@ -371,27 +380,56 @@ export function StorefrontPage() {
       }
 
       const rect = section.getBoundingClientRect();
-      const travel = Math.max(section.offsetHeight - window.innerHeight, 1);
-      const distance = Math.min(Math.max(-rect.top, 0), travel);
-      setShowcaseProgress(distance / travel);
+      const triggerLine = window.innerHeight * SHOWCASE_TRIGGER_VIEWPORT_RATIO;
+      const inTriggerRange =
+        rect.top <= triggerLine && rect.bottom >= window.innerHeight * 0.35;
+
+      if (!inTriggerRange) {
+        return;
+      }
+
+      const direction = Math.sign(event.deltaY);
+
+      if (direction === 0) {
+        return;
+      }
+
+      const current = showcaseProgressRef.current;
+      const step = Math.min(
+        Math.abs(event.deltaY) * SHOWCASE_WHEEL_SENSITIVITY,
+        SHOWCASE_WHEEL_MAX_STEP
+      );
+      const next =
+        direction > 0
+          ? Math.min(1, current + step)
+          : Math.max(0, current - step);
+      const shouldLockScroll =
+        (directionState === "forward" && direction > 0 && current < 1) ||
+        (directionState === "reverse" && direction < 0 && current > 0);
+
+      if (!shouldLockScroll) {
+        return;
+      }
+
+      event.preventDefault();
+      showcaseProgressRef.current = next;
+      setShowcaseProgress(next);
+
+      if (directionState === "forward" && next >= 1) {
+        showcaseDirectionRef.current = "reverse";
+      }
+
+      if (directionState === "reverse" && next <= 0) {
+        showcaseDirectionRef.current = "forward";
+      }
     };
 
-    const onScrollOrResize = () => {
-      cancelAnimationFrame(raf);
-      raf = window.requestAnimationFrame(updateProgress);
-    };
-
-    updateProgress();
-
-    window.addEventListener("scroll", onScrollOrResize, { passive: true });
-    window.addEventListener("resize", onScrollOrResize);
+    window.addEventListener("wheel", onWheel, { passive: false });
 
     return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener("scroll", onScrollOrResize);
-      window.removeEventListener("resize", onScrollOrResize);
+      window.removeEventListener("wheel", onWheel);
     };
-  }, []);
+  }, [activeView, isProductDialogOpen]);
 
   const getRangeProgress = (value: number, start: number, end: number) => {
     if (end <= start) {
@@ -401,9 +439,9 @@ export function StorefrontPage() {
     return Math.min(Math.max((value - start) / (end - start), 0), 1);
   };
 
-  const cardOneProgress = getRangeProgress(showcaseProgress, 0.05, 0.28);
-  const cardTwoProgress = getRangeProgress(showcaseProgress, 0.34, 0.58);
-  const cardThreeProgress = getRangeProgress(showcaseProgress, 0.64, 0.88);
+  const cardOneProgress = getRangeProgress(showcaseProgress, 0.0, 0.2);
+  const cardTwoProgress = getRangeProgress(showcaseProgress, 0.2, 0.45);
+  const cardThreeProgress = getRangeProgress(showcaseProgress, 0.45, 0.72);
 
   const cardOneTranslateY = 200 - 200 * cardOneProgress;
   const cardTwoTranslateY = 300 - 280 * cardTwoProgress;
@@ -630,7 +668,7 @@ export function StorefrontPage() {
       ) : activeView === "Home" ? (
         <section
           ref={showcaseRef}
-          className="relative mx-auto h-[300vh] w-full max-w-[1480px] px-4 py-8 md:px-8 md:py-10"
+          className="relative mx-auto h-[240vh] w-full max-w-[1480px] px-4 py-8 md:px-8 md:py-10"
         >
           <div className="sticky top-20 h-[calc(100vh-7rem)]">
             <div className="flex h-full items-start">
