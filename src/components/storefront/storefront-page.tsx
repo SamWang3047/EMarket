@@ -1,6 +1,13 @@
 "use client";
 
-import { useDeferredValue, useState, useTransition } from "react";
+import {
+  useDeferredValue,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useTransition
+} from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
@@ -36,6 +43,11 @@ const PRIMARY_NAV = [
 const SECONDARY_NAV = ["Start", "Sell", "Manage", "Learn", "Pricing"];
 
 type PrimaryNavItem = (typeof PRIMARY_NAV)[number];
+type StorefrontView = "Home" | PrimaryNavItem;
+type ShowcaseProduct = Pick<
+  Product,
+  "name" | "description" | "price" | "category" | "imageUrl"
+>;
 
 type ProductCardProps = {
   product: Product;
@@ -244,12 +256,13 @@ function ProductDetailWindow({
 }
 
 export function StorefrontPage() {
+  const showcaseRef = useRef<HTMLElement | null>(null);
   const [page, setPage] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState<
     ProductCategory | undefined
   >();
-  const [activePrimaryNav, setActivePrimaryNav] =
-    useState<PrimaryNavItem>("Product");
+  const [activeView, setActiveView] = useState<StorefrontView>("Home");
+  const [showcaseProgress, setShowcaseProgress] = useState(0);
   const [isProductDialogOpen, setIsProductDialogOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -262,8 +275,54 @@ export function StorefrontPage() {
     category: deferredCategory
   });
 
-  const products = data?.items ?? [];
+  const products = useMemo(() => data?.items ?? [], [data]);
   const pagination = data?.pagination;
+  const showcaseProducts = useMemo<ShowcaseProduct[]>(() => {
+    const fallbackProducts: ShowcaseProduct[] = [
+      {
+        name: "Creator Desk Bundle",
+        description:
+          "A practical starter stack with keyboard, monitor, and audio essentials.",
+        price: 28900,
+        category: "DESK_SETUP",
+        imageUrl: "https://images.unsplash.com/photo-1497215842964-222b430dc094"
+      },
+      {
+        name: "Focus Audio Kit",
+        description:
+          "Closed-back headphones and desk mic combo for deep work and clear calls.",
+        price: 16900,
+        category: "AUDIO",
+        imageUrl: "https://images.unsplash.com/photo-1546435770-a3e426bf472b"
+      },
+      {
+        name: "Ultra Productivity Display",
+        description:
+          "A color-accurate display tuned for long work sessions and clean typography.",
+        price: 31900,
+        category: "MONITORS",
+        imageUrl: "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf"
+      }
+    ];
+
+    if (!products.length) {
+      return fallbackProducts;
+    }
+
+    const selected = products.slice(0, 3).map((product) => ({
+      name: product.name,
+      description: product.description,
+      price: product.price,
+      category: product.category,
+      imageUrl: product.imageUrl
+    }));
+
+    while (selected.length < 3) {
+      selected.push(fallbackProducts[selected.length]);
+    }
+
+    return selected;
+  }, [products]);
 
   const handleCategoryChange = (category?: ProductCategory) => {
     startTransition(() => {
@@ -284,7 +343,7 @@ export function StorefrontPage() {
 
   const openProductSection = () => {
     setIsProductDialogOpen(false);
-    setActivePrimaryNav("Product");
+    setActiveView("Product");
     handleCategoryChange(undefined);
     requestAnimationFrame(() => {
       document
@@ -293,14 +352,75 @@ export function StorefrontPage() {
     });
   };
 
+  const openHome = () => {
+    setIsProductDialogOpen(false);
+    setActiveView("Home");
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  };
+
+  useEffect(() => {
+    let raf = 0;
+
+    const updateProgress = () => {
+      const section = showcaseRef.current;
+
+      if (!section) {
+        return;
+      }
+
+      const rect = section.getBoundingClientRect();
+      const travel = Math.max(section.offsetHeight - window.innerHeight, 1);
+      const distance = Math.min(Math.max(-rect.top, 0), travel);
+      setShowcaseProgress(distance / travel);
+    };
+
+    const onScrollOrResize = () => {
+      cancelAnimationFrame(raf);
+      raf = window.requestAnimationFrame(updateProgress);
+    };
+
+    updateProgress();
+
+    window.addEventListener("scroll", onScrollOrResize, { passive: true });
+    window.addEventListener("resize", onScrollOrResize);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", onScrollOrResize);
+      window.removeEventListener("resize", onScrollOrResize);
+    };
+  }, []);
+
+  const getRangeProgress = (value: number, start: number, end: number) => {
+    if (end <= start) {
+      return 1;
+    }
+
+    return Math.min(Math.max((value - start) / (end - start), 0), 1);
+  };
+
+  const cardOneProgress = getRangeProgress(showcaseProgress, 0.05, 0.28);
+  const cardTwoProgress = getRangeProgress(showcaseProgress, 0.34, 0.58);
+  const cardThreeProgress = getRangeProgress(showcaseProgress, 0.64, 0.88);
+
+  const cardOneTranslateY = 200 - 200 * cardOneProgress;
+  const cardTwoTranslateY = 300 - 280 * cardTwoProgress;
+  const cardThreeTranslateY = 380 - 330 * cardThreeProgress;
+
   return (
     <main className="min-h-screen [font-family:'Avenir_Next','Helvetica_Neue','Segoe_UI',sans-serif]">
       <header className="sticky top-0 z-40 border-b border-black/10 bg-white/90 backdrop-blur">
         <div className="mx-auto flex w-full max-w-[1700px] items-center justify-between px-4 py-3 md:px-8">
           <div className="flex items-center gap-8">
-            <div className="text-[36px] font-semibold leading-none tracking-[-0.06em]">
+            <button
+              type="button"
+              onClick={openHome}
+              className="text-[36px] font-semibold leading-none tracking-[-0.06em]"
+            >
               EMarket
-            </div>
+            </button>
             <nav className="hidden items-center gap-6 text-[15px] text-black/80 lg:flex">
               {PRIMARY_NAV.map((item) => (
                 <button
@@ -308,11 +428,11 @@ export function StorefrontPage() {
                   type="button"
                   className={cn(
                     "transition hover:text-black",
-                    activePrimaryNav === item && "font-semibold text-black"
+                    activeView === item && "font-semibold text-black"
                   )}
                   onClick={() => {
                     setIsProductDialogOpen(false);
-                    setActivePrimaryNav(item);
+                    setActiveView(item);
                     if (item === "Product") {
                       requestAnimationFrame(() => {
                         document
@@ -399,7 +519,7 @@ export function StorefrontPage() {
         </div>
       </section>
 
-      {activePrimaryNav === "Product" ? (
+      {activeView === "Product" ? (
         <section
           id="product-section"
           className="mx-auto w-full max-w-[1480px] space-y-6 px-4 py-8 md:px-8 md:py-10"
@@ -507,12 +627,124 @@ export function StorefrontPage() {
             </>
           ) : null}
         </section>
+      ) : activeView === "Home" ? (
+        <section
+          ref={showcaseRef}
+          className="relative mx-auto h-[300vh] w-full max-w-[1480px] px-4 py-8 md:px-8 md:py-10"
+        >
+          <div className="sticky top-20 h-[calc(100vh-7rem)]">
+            <div className="flex h-full items-start">
+              <div className="relative h-[50vh] min-h-[420px] w-full -translate-y-2 overflow-hidden rounded-[32px] border border-[color:var(--border)] bg-[linear-gradient(180deg,rgba(255,251,246,0.88),rgba(246,236,225,0.72))] p-4 md:-translate-y-4 md:p-6">
+                <article
+                  className="absolute left-4 right-4 top-4 z-10 overflow-hidden rounded-[28px] border border-[color:var(--border)] bg-[color:var(--surface-strong)] shadow-[0_28px_70px_rgba(39,30,22,0.15)] transition-transform duration-100 md:left-8 md:right-8"
+                  style={{
+                    transform: `translateY(${cardOneTranslateY}px) scale(1)`
+                  }}
+                >
+                  <div className="grid gap-4 p-4 md:grid-cols-[320px_1fr] md:gap-6 md:p-6">
+                    <div className="h-52 overflow-hidden rounded-[22px] bg-[linear-gradient(140deg,rgba(255,248,238,0.98),rgba(233,219,207,0.85))] md:h-full">
+                      <ProductImage
+                        alt={showcaseProducts[0].name}
+                        category={showcaseProducts[0].category}
+                        imageUrl={showcaseProducts[0].imageUrl}
+                        className="h-full w-full"
+                        imageClassName="h-full w-full object-cover"
+                      />
+                    </div>
+                    <div className="space-y-3">
+                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--accent)]">
+                        Featured Item
+                      </p>
+                      <h3 className="text-3xl font-semibold text-[var(--text)]">
+                        {showcaseProducts[0].name}
+                      </h3>
+                      <p className="text-sm leading-7 text-[var(--muted)]">
+                        {showcaseProducts[0].description}
+                      </p>
+                      <p className="text-2xl font-semibold text-[var(--text)]">
+                        {formatCurrency(showcaseProducts[0].price)}
+                      </p>
+                    </div>
+                  </div>
+                </article>
+
+                <article
+                  className="absolute left-4 right-4 top-10 z-20 overflow-hidden rounded-[28px] border border-[color:var(--border)] bg-[color:var(--surface-strong)] shadow-[0_30px_75px_rgba(39,30,22,0.18)] transition-transform duration-100 md:left-8 md:right-8"
+                  style={{
+                    transform: `translateY(${cardTwoTranslateY}px) scale(${0.985 + cardTwoProgress * 0.015})`,
+                    opacity: 0.2 + cardTwoProgress * 0.8
+                  }}
+                >
+                  <div className="grid gap-4 p-4 md:grid-cols-[320px_1fr] md:gap-6 md:p-6">
+                    <div className="h-52 overflow-hidden rounded-[22px] bg-[linear-gradient(140deg,rgba(255,248,238,0.98),rgba(233,219,207,0.85))] md:h-full">
+                      <ProductImage
+                        alt={showcaseProducts[1].name}
+                        category={showcaseProducts[1].category}
+                        imageUrl={showcaseProducts[1].imageUrl}
+                        className="h-full w-full"
+                        imageClassName="h-full w-full object-cover"
+                      />
+                    </div>
+                    <div className="space-y-3">
+                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--accent)]">
+                        Next Reveal
+                      </p>
+                      <h3 className="text-3xl font-semibold text-[var(--text)]">
+                        {showcaseProducts[1].name}
+                      </h3>
+                      <p className="text-sm leading-7 text-[var(--muted)]">
+                        {showcaseProducts[1].description}
+                      </p>
+                      <p className="text-2xl font-semibold text-[var(--text)]">
+                        {formatCurrency(showcaseProducts[1].price)}
+                      </p>
+                    </div>
+                  </div>
+                </article>
+
+                <article
+                  className="absolute left-4 right-4 top-16 z-30 overflow-hidden rounded-[28px] border border-[color:var(--border)] bg-[color:var(--surface-strong)] shadow-[0_32px_82px_rgba(39,30,22,0.2)] transition-transform duration-100 md:left-8 md:right-8"
+                  style={{
+                    transform: `translateY(${cardThreeTranslateY}px) scale(${0.97 + cardThreeProgress * 0.03})`,
+                    opacity: 0.12 + cardThreeProgress * 0.88
+                  }}
+                >
+                  <div className="grid gap-4 p-4 md:grid-cols-[320px_1fr] md:gap-6 md:p-6">
+                    <div className="h-52 overflow-hidden rounded-[22px] bg-[linear-gradient(140deg,rgba(255,248,238,0.98),rgba(233,219,207,0.85))] md:h-full">
+                      <ProductImage
+                        alt={showcaseProducts[2].name}
+                        category={showcaseProducts[2].category}
+                        imageUrl={showcaseProducts[2].imageUrl}
+                        className="h-full w-full"
+                        imageClassName="h-full w-full object-cover"
+                      />
+                    </div>
+                    <div className="space-y-3">
+                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--accent)]">
+                        Final Layer
+                      </p>
+                      <h3 className="text-3xl font-semibold text-[var(--text)]">
+                        {showcaseProducts[2].name}
+                      </h3>
+                      <p className="text-sm leading-7 text-[var(--muted)]">
+                        {showcaseProducts[2].description}
+                      </p>
+                      <p className="text-2xl font-semibold text-[var(--text)]">
+                        {formatCurrency(showcaseProducts[2].price)}
+                      </p>
+                    </div>
+                  </div>
+                </article>
+              </div>
+            </div>
+          </div>
+        </section>
       ) : (
         <section className="mx-auto w-full max-w-[1480px] px-4 py-8 md:px-8 md:py-10">
           <Card className="rounded-[28px] border-[color:var(--border)] bg-white/80">
             <CardContent className="p-8">
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--accent)]">
-                {activePrimaryNav}
+                {activeView}
               </p>
               <h2 className="mt-3 text-3xl font-semibold text-[var(--text)]">
                 Section content coming next

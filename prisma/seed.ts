@@ -121,6 +121,105 @@ async function main() {
         price: 1900,
         stock: 60,
         imageUrl: "https://images.unsplash.com/photo-1531346878377-a5be20888e57"
+      },
+      {
+        name: "Vertical Ergonomic Mouse",
+        category: "MICE",
+        description:
+          "Natural hand angle design to reduce wrist strain during long sessions.",
+        price: 6900,
+        stock: 28,
+        imageUrl: "https://images.unsplash.com/photo-1613141412501-9012977f1969"
+      },
+      {
+        name: "75% Wireless Keyboard",
+        category: "KEYBOARDS",
+        description:
+          "Compact keyboard with tri-mode connectivity and tactile feedback.",
+        price: 14900,
+        stock: 24,
+        imageUrl: "https://images.unsplash.com/photo-1618384887929-16ec33fab9ef"
+      },
+      {
+        name: "Ultrawide Monitor Arm",
+        category: "MONITORS",
+        description:
+          "Gas-spring arm for ultrawide displays with clean cable routing.",
+        price: 11900,
+        stock: 14,
+        imageUrl: "https://images.unsplash.com/photo-1517336714739-489689fd1ca8"
+      },
+      {
+        name: "USB Audio Interface",
+        category: "AUDIO",
+        description:
+          "Low-latency interface for creators, streamers, and remote meetings.",
+        price: 13900,
+        stock: 19,
+        imageUrl: "https://images.unsplash.com/photo-1598653222000-6b7b7a552625"
+      },
+      {
+        name: "NVMe External Enclosure",
+        category: "STORAGE",
+        description:
+          "Aluminum USB4 enclosure for high-speed portable NVMe workflows.",
+        price: 6400,
+        stock: 33,
+        imageUrl: "https://images.unsplash.com/photo-1617471346061-5d329ab9c574"
+      },
+      {
+        name: "Desk Mat XL",
+        category: "DESK_SETUP",
+        description:
+          "Spacious microfiber mat for keyboard, mouse, and writing comfort.",
+        price: 2900,
+        stock: 72,
+        imageUrl: "https://images.unsplash.com/photo-1586953208448-b95a79798f07"
+      },
+      {
+        name: "1080p Ring-Light Webcam",
+        category: "DESK_SETUP",
+        description:
+          "Webcam with integrated ring light and autofocus for video calls.",
+        price: 9600,
+        stock: 21,
+        imageUrl: "https://images.unsplash.com/photo-1587614382346-acd977736f90"
+      },
+      {
+        name: "Studio Monitor Speakers",
+        category: "AUDIO",
+        description:
+          "Near-field speakers tuned for clear mids and balanced low-end response.",
+        price: 22900,
+        stock: 11,
+        imageUrl: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f"
+      },
+      {
+        name: "Calibrated 32-inch 4K Display",
+        category: "MONITORS",
+        description:
+          "Factory-calibrated panel with wide color gamut for design workflows.",
+        price: 45900,
+        stock: 9,
+        imageUrl: "https://images.unsplash.com/photo-1527443195645-1133f7f28990"
+      },
+      {
+        name: "Portable Backup SSD 2TB",
+        category: "STORAGE",
+        description:
+          "Durable NVMe SSD with hardware encryption support for secure backups.",
+        price: 21900,
+        stock: 26,
+        imageUrl: "https://images.unsplash.com/photo-1625948515291-69613efd103f"
+      },
+      {
+        name: "Cable Management Kit",
+        category: "DESK_SETUP",
+        description:
+          "Magnetic clips, sleeves, and trays to keep desk wiring organized.",
+        price: 2400,
+        stock: 85,
+        imageUrl: "https://images.unsplash.com/photo-1556155092-490a1ba16284"
       }
     ],
     skipDuplicates: true
