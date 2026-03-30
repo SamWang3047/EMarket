@@ -34,6 +34,8 @@ const PRODUCT_DIALOG_ANIMATION_MS = 500;
 const SHOWCASE_TRIGGER_VIEWPORT_RATIO = 0.82;
 const SHOWCASE_WHEEL_SENSITIVITY = 0.0012;
 const SHOWCASE_WHEEL_MAX_STEP = 0.08;
+const HOME_SCROLL_CTA_RATIO = 0.55;
+const HOME_METRIC_DURATION_MS = 1100;
 
 const PRIMARY_NAV = [
   "Product",
@@ -51,6 +53,54 @@ type ShowcaseProduct = Pick<
   Product,
   "name" | "description" | "price" | "category" | "imageUrl"
 >;
+type HomeMetric = {
+  label: string;
+  helper: string;
+  suffix: string;
+  target: number;
+  decimals?: number;
+};
+
+const HOME_METRICS: HomeMetric[] = [
+  {
+    label: "Checkout Conversion",
+    helper: "Average uplift after cleaner PDP flow",
+    suffix: "%",
+    target: 37
+  },
+  {
+    label: "Cart Recovery",
+    helper: "Triggered by smart follow-up nudges",
+    suffix: "%",
+    target: 18
+  },
+  {
+    label: "Time To Publish",
+    helper: "From product draft to live catalog",
+    suffix: " min",
+    target: 12
+  }
+];
+
+const HOME_FLOW_STEPS = [
+  {
+    badge: "Step 01",
+    title: "Launch your hero product first",
+    description:
+      "Pin one primary offer and make the value obvious in the first scroll."
+  },
+  {
+    badge: "Step 02",
+    title: "Stack social proof right below",
+    description:
+      "Surface real results and high-intent testimonials while attention is still hot."
+  },
+  {
+    badge: "Step 03",
+    title: "Close with a compact action block",
+    description: "End the page with one strong action and zero decision noise."
+  }
+] as const;
 
 type ProductCardProps = {
   product: Product;
@@ -260,14 +310,24 @@ function ProductDetailWindow({
 
 export function StorefrontPage() {
   const showcaseRef = useRef<HTMLElement | null>(null);
+  const metricsSectionRef = useRef<HTMLElement | null>(null);
+  const flowSectionRef = useRef<HTMLElement | null>(null);
   const showcaseProgressRef = useRef(0);
   const showcaseDirectionRef = useRef<"forward" | "reverse">("forward");
+  const metricsRafRef = useRef<number | null>(null);
+  const metricsStartedRef = useRef(false);
   const [page, setPage] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState<
     ProductCategory | undefined
   >();
   const [activeView, setActiveView] = useState<StorefrontView>("Home");
   const [showcaseProgress, setShowcaseProgress] = useState(0);
+  const [metricValues, setMetricValues] = useState(() =>
+    HOME_METRICS.map(() => 0)
+  );
+  const [activeFlowStep, setActiveFlowStep] = useState(0);
+  const [flowProgress, setFlowProgress] = useState(0);
+  const [isScrollCtaVisible, setIsScrollCtaVisible] = useState(false);
   const [isProductDialogOpen, setIsProductDialogOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -431,6 +491,175 @@ export function StorefrontPage() {
     };
   }, [activeView, isProductDialogOpen]);
 
+  useEffect(() => {
+    return () => {
+      if (metricsRafRef.current !== null) {
+        cancelAnimationFrame(metricsRafRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (activeView !== "Home") {
+      return;
+    }
+
+    const revealNodes = Array.from(
+      document.querySelectorAll<HTMLElement>("[data-home-reveal]")
+    );
+
+    if (!revealNodes.length) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+          }
+        });
+      },
+      {
+        root: null,
+        rootMargin: "0px 0px -10% 0px",
+        threshold: 0.2
+      }
+    );
+
+    revealNodes.forEach((node) => observer.observe(node));
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [activeView]);
+
+  useEffect(() => {
+    if (activeView !== "Home") {
+      return;
+    }
+
+    const section = metricsSectionRef.current;
+
+    if (!section || metricsStartedRef.current) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+
+        if (!entry?.isIntersecting || metricsStartedRef.current) {
+          return;
+        }
+
+        metricsStartedRef.current = true;
+        const startTime = performance.now();
+
+        const tick = (now: number) => {
+          const t = Math.min((now - startTime) / HOME_METRIC_DURATION_MS, 1);
+          const eased = 1 - Math.pow(1 - t, 3);
+
+          setMetricValues(
+            HOME_METRICS.map((metric) => {
+              const raw = metric.target * eased;
+
+              if (metric.decimals && metric.decimals > 0) {
+                return Number(raw.toFixed(metric.decimals));
+              }
+
+              return Math.round(raw);
+            })
+          );
+
+          if (t < 1) {
+            metricsRafRef.current = window.requestAnimationFrame(tick);
+          } else {
+            setMetricValues(
+              HOME_METRICS.map((metric) =>
+                metric.decimals && metric.decimals > 0
+                  ? Number(metric.target.toFixed(metric.decimals))
+                  : metric.target
+              )
+            );
+            metricsRafRef.current = null;
+          }
+        };
+
+        metricsRafRef.current = window.requestAnimationFrame(tick);
+        observer.disconnect();
+      },
+      { threshold: 0.35 }
+    );
+
+    observer.observe(section);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [activeView]);
+
+  useEffect(() => {
+    if (activeView !== "Home") {
+      setIsScrollCtaVisible(false);
+      setFlowProgress(0);
+      setActiveFlowStep(0);
+      return;
+    }
+
+    let raf = 0;
+
+    const update = () => {
+      const doc = document.documentElement;
+      const max = Math.max(doc.scrollHeight - doc.clientHeight, 1);
+      const scrollTop = window.scrollY;
+      const depth = scrollTop / max;
+      const shouldShowCta = depth >= HOME_SCROLL_CTA_RATIO;
+
+      setIsScrollCtaVisible((current) =>
+        current === shouldShowCta ? current : shouldShowCta
+      );
+
+      const flowSection = flowSectionRef.current;
+      if (!flowSection) {
+        return;
+      }
+
+      const rect = flowSection.getBoundingClientRect();
+      const start = window.innerHeight * 0.82;
+      const end = window.innerHeight * 0.2;
+      const travel = Math.max(flowSection.offsetHeight + (start - end), 1);
+      const progress = Math.min(Math.max((start - rect.top) / travel, 0), 1);
+      const nextStep = Math.min(
+        HOME_FLOW_STEPS.length - 1,
+        Math.floor(progress * HOME_FLOW_STEPS.length)
+      );
+
+      setFlowProgress((current) =>
+        Math.abs(current - progress) < 0.002 ? current : progress
+      );
+      setActiveFlowStep((current) =>
+        current === nextStep ? current : nextStep
+      );
+    };
+
+    const onScrollOrResize = () => {
+      cancelAnimationFrame(raf);
+      raf = window.requestAnimationFrame(update);
+    };
+
+    update();
+
+    window.addEventListener("scroll", onScrollOrResize, { passive: true });
+    window.addEventListener("resize", onScrollOrResize);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", onScrollOrResize);
+      window.removeEventListener("resize", onScrollOrResize);
+    };
+  }, [activeView]);
+
   const getRangeProgress = (value: number, start: number, end: number) => {
     if (end <= start) {
       return 1;
@@ -446,6 +675,15 @@ export function StorefrontPage() {
   const cardOneTranslateY = 200 - 200 * cardOneProgress;
   const cardTwoTranslateY = 300 - 280 * cardTwoProgress;
   const cardThreeTranslateY = 380 - 330 * cardThreeProgress;
+  const flowVirtualIndex = flowProgress * (HOME_FLOW_STEPS.length - 1);
+
+  const formatMetricValue = (value: number, metric: HomeMetric) => {
+    if (metric.decimals && metric.decimals > 0) {
+      return `${value.toFixed(metric.decimals)}${metric.suffix}`;
+    }
+
+    return `${Math.round(value)}${metric.suffix}`;
+  };
 
   return (
     <main className="min-h-screen [font-family:'Avenir_Next','Helvetica_Neue','Segoe_UI',sans-serif]">
@@ -666,117 +904,260 @@ export function StorefrontPage() {
           ) : null}
         </section>
       ) : activeView === "Home" ? (
-        <section
-          ref={showcaseRef}
-          className="relative mx-auto h-[240vh] w-full max-w-[1480px] px-4 py-8 md:px-8 md:py-10"
-        >
-          <div className="sticky top-20 h-[calc(100vh-7rem)]">
-            <div className="flex h-full items-start">
-              <div className="relative h-[50vh] min-h-[420px] w-full -translate-y-2 overflow-hidden rounded-[32px] border border-[color:var(--border)] bg-[linear-gradient(180deg,rgba(255,251,246,0.88),rgba(246,236,225,0.72))] p-4 md:-translate-y-4 md:p-6">
-                <article
-                  className="absolute left-4 right-4 top-4 z-10 overflow-hidden rounded-[28px] border border-[color:var(--border)] bg-[color:var(--surface-strong)] shadow-[0_28px_70px_rgba(39,30,22,0.15)] transition-transform duration-100 md:left-8 md:right-8"
-                  style={{
-                    transform: `translateY(${cardOneTranslateY}px) scale(1)`
-                  }}
-                >
-                  <div className="grid gap-4 p-4 md:grid-cols-[320px_1fr] md:gap-6 md:p-6">
-                    <div className="h-52 overflow-hidden rounded-[22px] bg-[linear-gradient(140deg,rgba(255,248,238,0.98),rgba(233,219,207,0.85))] md:h-full">
-                      <ProductImage
-                        alt={showcaseProducts[0].name}
-                        category={showcaseProducts[0].category}
-                        imageUrl={showcaseProducts[0].imageUrl}
-                        className="h-full w-full"
-                        imageClassName="h-full w-full object-cover"
-                      />
+        <>
+          <section
+            ref={showcaseRef}
+            className="relative mx-auto h-[240vh] w-full max-w-[1480px] px-4 py-8 md:px-8 md:py-10"
+          >
+            <div className="sticky top-20 h-[calc(100vh-7rem)]">
+              <div className="flex h-full items-start">
+                <div className="relative h-[50vh] min-h-[420px] w-full -translate-y-2 overflow-hidden rounded-[32px] border border-[color:var(--border)] bg-[linear-gradient(180deg,rgba(255,251,246,0.88),rgba(246,236,225,0.72))] p-4 md:-translate-y-4 md:p-6">
+                  <article
+                    className="absolute left-4 right-4 top-4 z-10 overflow-hidden rounded-[28px] border border-[color:var(--border)] bg-[color:var(--surface-strong)] shadow-[0_28px_70px_rgba(39,30,22,0.15)] transition-transform duration-100 md:left-8 md:right-8"
+                    style={{
+                      transform: `translateY(${cardOneTranslateY}px) scale(1)`
+                    }}
+                  >
+                    <div className="grid gap-4 p-4 md:grid-cols-[320px_1fr] md:gap-6 md:p-6">
+                      <div className="h-52 overflow-hidden rounded-[22px] bg-[linear-gradient(140deg,rgba(255,248,238,0.98),rgba(233,219,207,0.85))] md:h-full">
+                        <ProductImage
+                          alt={showcaseProducts[0].name}
+                          category={showcaseProducts[0].category}
+                          imageUrl={showcaseProducts[0].imageUrl}
+                          className="h-full w-full"
+                          imageClassName="h-full w-full object-cover"
+                        />
+                      </div>
+                      <div className="space-y-3">
+                        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--accent)]">
+                          Featured Item
+                        </p>
+                        <h3 className="text-3xl font-semibold text-[var(--text)]">
+                          {showcaseProducts[0].name}
+                        </h3>
+                        <p className="text-sm leading-7 text-[var(--muted)]">
+                          {showcaseProducts[0].description}
+                        </p>
+                        <p className="text-2xl font-semibold text-[var(--text)]">
+                          {formatCurrency(showcaseProducts[0].price)}
+                        </p>
+                      </div>
                     </div>
-                    <div className="space-y-3">
-                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--accent)]">
-                        Featured Item
-                      </p>
-                      <h3 className="text-3xl font-semibold text-[var(--text)]">
-                        {showcaseProducts[0].name}
-                      </h3>
-                      <p className="text-sm leading-7 text-[var(--muted)]">
-                        {showcaseProducts[0].description}
-                      </p>
-                      <p className="text-2xl font-semibold text-[var(--text)]">
-                        {formatCurrency(showcaseProducts[0].price)}
-                      </p>
-                    </div>
-                  </div>
-                </article>
+                  </article>
 
-                <article
-                  className="absolute left-4 right-4 top-10 z-20 overflow-hidden rounded-[28px] border border-[color:var(--border)] bg-[color:var(--surface-strong)] shadow-[0_30px_75px_rgba(39,30,22,0.18)] transition-transform duration-100 md:left-8 md:right-8"
-                  style={{
-                    transform: `translateY(${cardTwoTranslateY}px) scale(${0.985 + cardTwoProgress * 0.015})`,
-                    opacity: 0.2 + cardTwoProgress * 0.8
-                  }}
-                >
-                  <div className="grid gap-4 p-4 md:grid-cols-[320px_1fr] md:gap-6 md:p-6">
-                    <div className="h-52 overflow-hidden rounded-[22px] bg-[linear-gradient(140deg,rgba(255,248,238,0.98),rgba(233,219,207,0.85))] md:h-full">
-                      <ProductImage
-                        alt={showcaseProducts[1].name}
-                        category={showcaseProducts[1].category}
-                        imageUrl={showcaseProducts[1].imageUrl}
-                        className="h-full w-full"
-                        imageClassName="h-full w-full object-cover"
-                      />
+                  <article
+                    className="absolute left-4 right-4 top-10 z-20 overflow-hidden rounded-[28px] border border-[color:var(--border)] bg-[color:var(--surface-strong)] shadow-[0_30px_75px_rgba(39,30,22,0.18)] transition-transform duration-100 md:left-8 md:right-8"
+                    style={{
+                      transform: `translateY(${cardTwoTranslateY}px) scale(${0.985 + cardTwoProgress * 0.015})`,
+                      opacity: 0.2 + cardTwoProgress * 0.8
+                    }}
+                  >
+                    <div className="grid gap-4 p-4 md:grid-cols-[320px_1fr] md:gap-6 md:p-6">
+                      <div className="h-52 overflow-hidden rounded-[22px] bg-[linear-gradient(140deg,rgba(255,248,238,0.98),rgba(233,219,207,0.85))] md:h-full">
+                        <ProductImage
+                          alt={showcaseProducts[1].name}
+                          category={showcaseProducts[1].category}
+                          imageUrl={showcaseProducts[1].imageUrl}
+                          className="h-full w-full"
+                          imageClassName="h-full w-full object-cover"
+                        />
+                      </div>
+                      <div className="space-y-3">
+                        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--accent)]">
+                          Next Reveal
+                        </p>
+                        <h3 className="text-3xl font-semibold text-[var(--text)]">
+                          {showcaseProducts[1].name}
+                        </h3>
+                        <p className="text-sm leading-7 text-[var(--muted)]">
+                          {showcaseProducts[1].description}
+                        </p>
+                        <p className="text-2xl font-semibold text-[var(--text)]">
+                          {formatCurrency(showcaseProducts[1].price)}
+                        </p>
+                      </div>
                     </div>
-                    <div className="space-y-3">
-                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--accent)]">
-                        Next Reveal
-                      </p>
-                      <h3 className="text-3xl font-semibold text-[var(--text)]">
-                        {showcaseProducts[1].name}
-                      </h3>
-                      <p className="text-sm leading-7 text-[var(--muted)]">
-                        {showcaseProducts[1].description}
-                      </p>
-                      <p className="text-2xl font-semibold text-[var(--text)]">
-                        {formatCurrency(showcaseProducts[1].price)}
-                      </p>
-                    </div>
-                  </div>
-                </article>
+                  </article>
 
-                <article
-                  className="absolute left-4 right-4 top-16 z-30 overflow-hidden rounded-[28px] border border-[color:var(--border)] bg-[color:var(--surface-strong)] shadow-[0_32px_82px_rgba(39,30,22,0.2)] transition-transform duration-100 md:left-8 md:right-8"
-                  style={{
-                    transform: `translateY(${cardThreeTranslateY}px) scale(${0.97 + cardThreeProgress * 0.03})`,
-                    opacity: 0.12 + cardThreeProgress * 0.88
-                  }}
-                >
-                  <div className="grid gap-4 p-4 md:grid-cols-[320px_1fr] md:gap-6 md:p-6">
-                    <div className="h-52 overflow-hidden rounded-[22px] bg-[linear-gradient(140deg,rgba(255,248,238,0.98),rgba(233,219,207,0.85))] md:h-full">
-                      <ProductImage
-                        alt={showcaseProducts[2].name}
-                        category={showcaseProducts[2].category}
-                        imageUrl={showcaseProducts[2].imageUrl}
-                        className="h-full w-full"
-                        imageClassName="h-full w-full object-cover"
-                      />
+                  <article
+                    className="absolute left-4 right-4 top-16 z-30 overflow-hidden rounded-[28px] border border-[color:var(--border)] bg-[color:var(--surface-strong)] shadow-[0_32px_82px_rgba(39,30,22,0.2)] transition-transform duration-100 md:left-8 md:right-8"
+                    style={{
+                      transform: `translateY(${cardThreeTranslateY}px) scale(${0.97 + cardThreeProgress * 0.03})`,
+                      opacity: 0.12 + cardThreeProgress * 0.88
+                    }}
+                  >
+                    <div className="grid gap-4 p-4 md:grid-cols-[320px_1fr] md:gap-6 md:p-6">
+                      <div className="h-52 overflow-hidden rounded-[22px] bg-[linear-gradient(140deg,rgba(255,248,238,0.98),rgba(233,219,207,0.85))] md:h-full">
+                        <ProductImage
+                          alt={showcaseProducts[2].name}
+                          category={showcaseProducts[2].category}
+                          imageUrl={showcaseProducts[2].imageUrl}
+                          className="h-full w-full"
+                          imageClassName="h-full w-full object-cover"
+                        />
+                      </div>
+                      <div className="space-y-3">
+                        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--accent)]">
+                          Final Layer
+                        </p>
+                        <h3 className="text-3xl font-semibold text-[var(--text)]">
+                          {showcaseProducts[2].name}
+                        </h3>
+                        <p className="text-sm leading-7 text-[var(--muted)]">
+                          {showcaseProducts[2].description}
+                        </p>
+                        <p className="text-2xl font-semibold text-[var(--text)]">
+                          {formatCurrency(showcaseProducts[2].price)}
+                        </p>
+                      </div>
                     </div>
-                    <div className="space-y-3">
-                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--accent)]">
-                        Final Layer
-                      </p>
-                      <h3 className="text-3xl font-semibold text-[var(--text)]">
-                        {showcaseProducts[2].name}
-                      </h3>
-                      <p className="text-sm leading-7 text-[var(--muted)]">
-                        {showcaseProducts[2].description}
-                      </p>
-                      <p className="text-2xl font-semibold text-[var(--text)]">
-                        {formatCurrency(showcaseProducts[2].price)}
-                      </p>
-                    </div>
-                  </div>
-                </article>
+                  </article>
+                </div>
               </div>
             </div>
+          </section>
+
+          <section
+            ref={metricsSectionRef}
+            data-home-reveal
+            className="home-reveal mx-auto w-full max-w-[1480px] px-4 pb-6 md:px-8"
+          >
+            <div className="rounded-[32px] border border-[color:var(--border)] bg-[linear-gradient(160deg,rgba(255,251,245,0.95),rgba(242,231,219,0.86))] p-6 md:p-8">
+              <div className="grid gap-4 md:grid-cols-3">
+                {HOME_METRICS.map((metric, index) => (
+                  <article
+                    key={metric.label}
+                    className="rounded-[24px] border border-[color:var(--border)] bg-white/70 p-5"
+                  >
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--accent)]">
+                      {metric.label}
+                    </p>
+                    <p className="mt-3 text-4xl font-semibold tracking-[-0.03em] text-[var(--text)] md:text-5xl">
+                      {formatMetricValue(metricValues[index] ?? 0, metric)}
+                    </p>
+                    <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
+                      {metric.helper}
+                    </p>
+                  </article>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          <section
+            ref={flowSectionRef}
+            data-home-reveal
+            className="home-reveal relative mx-auto h-[220vh] w-full max-w-[1480px] px-4 pb-10 md:px-8"
+          >
+            <div className="sticky top-24 h-[calc(100vh-8rem)] overflow-hidden rounded-[32px] border border-[color:var(--border)] bg-[linear-gradient(180deg,rgba(255,253,248,0.94),rgba(242,232,221,0.82))] p-5 md:p-8">
+              <div className="grid h-full gap-6 lg:grid-cols-[0.95fr_1.05fr]">
+                <div className="flex h-full flex-col">
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--accent)]">
+                    Scroll Flow
+                  </p>
+                  <h2 className="mt-4 max-w-lg text-3xl font-semibold leading-tight tracking-[-0.03em] text-[var(--text)] md:text-5xl">
+                    Convert scroll intent into action.
+                  </h2>
+                  <div className="mt-8 space-y-4">
+                    {HOME_FLOW_STEPS.map((step, index) => (
+                      <article
+                        key={step.title}
+                        className={cn(
+                          "rounded-[20px] border border-[color:var(--border)] bg-white/70 p-4 transition-all duration-400",
+                          index === activeFlowStep
+                            ? "shadow-[0_14px_36px_rgba(38,27,18,0.12)]"
+                            : "opacity-70"
+                        )}
+                      >
+                        <div className="flex items-center gap-3">
+                          <span
+                            className={cn(
+                              "h-[2px] rounded-full bg-[var(--accent)] transition-all duration-300",
+                              index === activeFlowStep
+                                ? "w-10"
+                                : "w-4 opacity-45"
+                            )}
+                          />
+                          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--accent)]">
+                            {step.badge}
+                          </p>
+                        </div>
+                        <p className="mt-2 text-xl font-semibold text-[var(--text)]">
+                          {step.title}
+                        </p>
+                        <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
+                          {step.description}
+                        </p>
+                      </article>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="relative hidden h-full overflow-hidden rounded-[28px] border border-[color:var(--border)] bg-[linear-gradient(150deg,rgba(255,255,255,0.75),rgba(248,238,227,0.68))] lg:block">
+                  {HOME_FLOW_STEPS.map((step, index) => {
+                    const delta = index - flowVirtualIndex;
+                    const translateY = 58 + delta * 82;
+                    const scale = Math.max(0.84, 1 - Math.abs(delta) * 0.08);
+                    const opacity = Math.max(0.16, 1 - Math.abs(delta) * 0.45);
+                    const product =
+                      showcaseProducts[index % showcaseProducts.length];
+
+                    return (
+                      <article
+                        key={step.badge}
+                        className="absolute left-7 right-7 top-6 overflow-hidden rounded-[24px] border border-[color:var(--border)] bg-[color:var(--surface-strong)] shadow-[0_22px_50px_rgba(39,30,22,0.14)] transition-transform duration-300"
+                        style={{
+                          transform: `translateY(${translateY}px) scale(${scale})`,
+                          opacity,
+                          zIndex: HOME_FLOW_STEPS.length - index
+                        }}
+                      >
+                        <div className="grid gap-4 p-4 md:grid-cols-[220px_1fr]">
+                          <div className="h-36 overflow-hidden rounded-[18px] bg-[linear-gradient(140deg,rgba(255,248,238,0.98),rgba(233,219,207,0.85))]">
+                            <ProductImage
+                              alt={product.name}
+                              category={product.category}
+                              imageUrl={product.imageUrl}
+                              className="h-full w-full"
+                              imageClassName="h-full w-full object-cover"
+                            />
+                          </div>
+                          <div>
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--accent)]">
+                              {step.badge}
+                            </p>
+                            <p className="mt-2 text-2xl font-semibold text-[var(--text)]">
+                              {product.name}
+                            </p>
+                            <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
+                              {step.description}
+                            </p>
+                          </div>
+                        </div>
+                      </article>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <div
+            className={cn(
+              "pointer-events-none fixed bottom-6 right-6 z-40 transition-all duration-500",
+              isScrollCtaVisible
+                ? "translate-y-0 opacity-100"
+                : "translate-y-5 opacity-0"
+            )}
+          >
+            <Button
+              className="pointer-events-auto h-12 rounded-full bg-black px-6 text-sm text-white shadow-[0_18px_38px_rgba(14,14,14,0.26)] hover:bg-black/85"
+              onClick={openProductSection}
+            >
+              Browse Products
+            </Button>
           </div>
-        </section>
+        </>
       ) : (
         <section className="mx-auto w-full max-w-[1480px] px-4 py-8 md:px-8 md:py-10">
           <Card className="rounded-[28px] border-[color:var(--border)] bg-white/80">
