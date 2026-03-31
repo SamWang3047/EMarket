@@ -901,113 +901,109 @@ export function StorefrontPage() {
         <>
           <section
             ref={showcaseRef}
-            className="relative mx-auto h-[240vh] w-full max-w-[1480px] px-4 py-8 md:px-8 md:py-10"
+            className="relative mx-auto w-full max-w-[1480px] px-4 py-0 md:px-8 md:py-0"
           >
-            <div className="sticky top-20 h-[calc(100vh-7rem)]">
-              <div className="flex h-full items-start">
-                <div className="relative h-[50vh] min-h-[420px] w-full -translate-y-2 overflow-hidden rounded-[32px] border border-[color:var(--border)] bg-[linear-gradient(180deg,#fffbf6,#f6ece1)] p-4 md:-translate-y-4 md:p-6">
-                  <article
-                    className="absolute left-4 right-4 top-4 z-10 overflow-hidden rounded-[28px] border border-[color:var(--border)] bg-white shadow-[0_28px_70px_rgba(39,30,22,0.15)] transition-transform duration-100 md:left-8 md:right-8"
-                    style={{
-                      transform: `translateY(${cardOneTranslateY}px) scale(1)`
-                    }}
-                  >
-                    <div className="grid gap-4 p-4 md:grid-cols-[320px_1fr] md:gap-6 md:p-6">
-                      <div className="h-52 overflow-hidden rounded-[22px] bg-[linear-gradient(140deg,rgba(255,248,238,0.98),rgba(233,219,207,0.85))] md:h-full">
-                        <ProductImage
-                          alt={showcaseProducts[0].name}
-                          category={showcaseProducts[0].category}
-                          imageUrl={showcaseProducts[0].imageUrl}
-                          className="h-full w-full"
-                          imageClassName="h-full w-full object-cover"
-                        />
-                      </div>
-                      <div className="space-y-3">
-                        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--accent)]">
-                          Featured Item
-                        </p>
-                        <h3 className="text-3xl font-semibold text-[var(--text)]">
-                          {showcaseProducts[0].name}
-                        </h3>
-                        <p className="text-sm leading-7 text-[var(--muted)]">
-                          {showcaseProducts[0].description}
-                        </p>
-                        <p className="text-2xl font-semibold text-[var(--text)]">
-                          {formatCurrency(showcaseProducts[0].price)}
-                        </p>
-                      </div>
-                    </div>
-                  </article>
-
-                  <article
-                    className="absolute left-4 right-4 top-10 z-20 overflow-hidden rounded-[28px] border border-[color:var(--border)] bg-white shadow-[0_30px_75px_rgba(39,30,22,0.18)] transition-transform duration-100 md:left-8 md:right-8"
-                    style={{
-                      transform: `translateY(${cardTwoTranslateY}px) scale(${0.985 + cardTwoProgress * 0.015})`,
-                      opacity: cardTwoProgress > 0 ? 1 : 0
-                    }}
-                  >
-                    <div className="grid gap-4 p-4 md:grid-cols-[320px_1fr] md:gap-6 md:p-6">
-                      <div className="h-52 overflow-hidden rounded-[22px] bg-[linear-gradient(140deg,rgba(255,248,238,0.98),rgba(233,219,207,0.85))] md:h-full">
-                        <ProductImage
-                          alt={showcaseProducts[1].name}
-                          category={showcaseProducts[1].category}
-                          imageUrl={showcaseProducts[1].imageUrl}
-                          className="h-full w-full"
-                          imageClassName="h-full w-full object-cover"
-                        />
-                      </div>
-                      <div className="space-y-3">
-                        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--accent)]">
-                          Next Reveal
-                        </p>
-                        <h3 className="text-3xl font-semibold text-[var(--text)]">
-                          {showcaseProducts[1].name}
-                        </h3>
-                        <p className="text-sm leading-7 text-[var(--muted)]">
-                          {showcaseProducts[1].description}
-                        </p>
-                        <p className="text-2xl font-semibold text-[var(--text)]">
-                          {formatCurrency(showcaseProducts[1].price)}
-                        </p>
-                      </div>
-                    </div>
-                  </article>
-
-                  <article
-                    className="absolute left-4 right-4 top-16 z-30 overflow-hidden rounded-[28px] border border-[color:var(--border)] bg-white shadow-[0_32px_82px_rgba(39,30,22,0.2)] transition-transform duration-100 md:left-8 md:right-8"
-                    style={{
-                      transform: `translateY(${cardThreeTranslateY}px) scale(${0.97 + cardThreeProgress * 0.03})`,
-                      opacity: cardThreeProgress > 0 ? 1 : 0
-                    }}
-                  >
-                    <div className="grid gap-4 p-4 md:grid-cols-[320px_1fr] md:gap-6 md:p-6">
-                      <div className="h-52 overflow-hidden rounded-[22px] bg-[linear-gradient(140deg,rgba(255,248,238,0.98),rgba(233,219,207,0.85))] md:h-full">
-                        <ProductImage
-                          alt={showcaseProducts[2].name}
-                          category={showcaseProducts[2].category}
-                          imageUrl={showcaseProducts[2].imageUrl}
-                          className="h-full w-full"
-                          imageClassName="h-full w-full object-cover"
-                        />
-                      </div>
-                      <div className="space-y-3">
-                        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--accent)]">
-                          Final Layer
-                        </p>
-                        <h3 className="text-3xl font-semibold text-[var(--text)]">
-                          {showcaseProducts[2].name}
-                        </h3>
-                        <p className="text-sm leading-7 text-[var(--muted)]">
-                          {showcaseProducts[2].description}
-                        </p>
-                        <p className="text-2xl font-semibold text-[var(--text)]">
-                          {formatCurrency(showcaseProducts[2].price)}
-                        </p>
-                      </div>
-                    </div>
-                  </article>
+            <div className="relative h-[50vh] min-h-[420px] w-full -translate-y-2 overflow-hidden rounded-[32px] border border-[color:var(--border)] bg-[linear-gradient(180deg,#fffbf6,#f6ece1)] p-4 md:-translate-y-4 md:p-6">
+              <article
+                className="absolute left-4 right-4 top-4 z-10 overflow-hidden rounded-[28px] border border-[color:var(--border)] bg-white shadow-[0_28px_70px_rgba(39,30,22,0.15)] transition-transform duration-100 md:left-8 md:right-8"
+                style={{
+                  transform: `translateY(${cardOneTranslateY}px) scale(1)`
+                }}
+              >
+                <div className="grid gap-4 p-4 md:grid-cols-[320px_1fr] md:gap-6 md:p-6">
+                  <div className="h-52 overflow-hidden rounded-[22px] bg-[linear-gradient(140deg,rgba(255,248,238,0.98),rgba(233,219,207,0.85))] md:h-full">
+                    <ProductImage
+                      alt={showcaseProducts[0].name}
+                      category={showcaseProducts[0].category}
+                      imageUrl={showcaseProducts[0].imageUrl}
+                      className="h-full w-full"
+                      imageClassName="h-full w-full object-cover"
+                    />
+                  </div>
+                  <div className="space-y-3">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--accent)]">
+                      Featured Item
+                    </p>
+                    <h3 className="text-3xl font-semibold text-[var(--text)]">
+                      {showcaseProducts[0].name}
+                    </h3>
+                    <p className="text-sm leading-7 text-[var(--muted)]">
+                      {showcaseProducts[0].description}
+                    </p>
+                    <p className="text-2xl font-semibold text-[var(--text)]">
+                      {formatCurrency(showcaseProducts[0].price)}
+                    </p>
+                  </div>
                 </div>
-              </div>
+              </article>
+
+              <article
+                className="absolute left-4 right-4 top-10 z-20 overflow-hidden rounded-[28px] border border-[color:var(--border)] bg-white shadow-[0_30px_75px_rgba(39,30,22,0.18)] transition-transform duration-100 md:left-8 md:right-8"
+                style={{
+                  transform: `translateY(${cardTwoTranslateY}px) scale(${0.985 + cardTwoProgress * 0.015})`,
+                  opacity: cardTwoProgress > 0 ? 1 : 0
+                }}
+              >
+                <div className="grid gap-4 p-4 md:grid-cols-[320px_1fr] md:gap-6 md:p-6">
+                  <div className="h-52 overflow-hidden rounded-[22px] bg-[linear-gradient(140deg,rgba(255,248,238,0.98),rgba(233,219,207,0.85))] md:h-full">
+                    <ProductImage
+                      alt={showcaseProducts[1].name}
+                      category={showcaseProducts[1].category}
+                      imageUrl={showcaseProducts[1].imageUrl}
+                      className="h-full w-full"
+                      imageClassName="h-full w-full object-cover"
+                    />
+                  </div>
+                  <div className="space-y-3">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--accent)]">
+                      Next Reveal
+                    </p>
+                    <h3 className="text-3xl font-semibold text-[var(--text)]">
+                      {showcaseProducts[1].name}
+                    </h3>
+                    <p className="text-sm leading-7 text-[var(--muted)]">
+                      {showcaseProducts[1].description}
+                    </p>
+                    <p className="text-2xl font-semibold text-[var(--text)]">
+                      {formatCurrency(showcaseProducts[1].price)}
+                    </p>
+                  </div>
+                </div>
+              </article>
+
+              <article
+                className="absolute left-4 right-4 top-16 z-30 overflow-hidden rounded-[28px] border border-[color:var(--border)] bg-white shadow-[0_32px_82px_rgba(39,30,22,0.2)] transition-transform duration-100 md:left-8 md:right-8"
+                style={{
+                  transform: `translateY(${cardThreeTranslateY}px) scale(${0.97 + cardThreeProgress * 0.03})`,
+                  opacity: cardThreeProgress > 0 ? 1 : 0
+                }}
+              >
+                <div className="grid gap-4 p-4 md:grid-cols-[320px_1fr] md:gap-6 md:p-6">
+                  <div className="h-52 overflow-hidden rounded-[22px] bg-[linear-gradient(140deg,rgba(255,248,238,0.98),rgba(233,219,207,0.85))] md:h-full">
+                    <ProductImage
+                      alt={showcaseProducts[2].name}
+                      category={showcaseProducts[2].category}
+                      imageUrl={showcaseProducts[2].imageUrl}
+                      className="h-full w-full"
+                      imageClassName="h-full w-full object-cover"
+                    />
+                  </div>
+                  <div className="space-y-3">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--accent)]">
+                      Final Layer
+                    </p>
+                    <h3 className="text-3xl font-semibold text-[var(--text)]">
+                      {showcaseProducts[2].name}
+                    </h3>
+                    <p className="text-sm leading-7 text-[var(--muted)]">
+                      {showcaseProducts[2].description}
+                    </p>
+                    <p className="text-2xl font-semibold text-[var(--text)]">
+                      {formatCurrency(showcaseProducts[2].price)}
+                    </p>
+                  </div>
+                </div>
+              </article>
             </div>
           </section>
 
