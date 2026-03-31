@@ -326,7 +326,6 @@ export function StorefrontPage() {
     HOME_METRICS.map(() => 0)
   );
   const [activeFlowStep, setActiveFlowStep] = useState(0);
-  const [flowProgress, setFlowProgress] = useState(0);
   const [isScrollCtaVisible, setIsScrollCtaVisible] = useState(false);
   const [isProductDialogOpen, setIsProductDialogOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -602,7 +601,6 @@ export function StorefrontPage() {
   useEffect(() => {
     if (activeView !== "Home") {
       setIsScrollCtaVisible(false);
-      setFlowProgress(0);
       setActiveFlowStep(0);
       return;
     }
@@ -635,9 +633,6 @@ export function StorefrontPage() {
         Math.floor(progress * HOME_FLOW_STEPS.length)
       );
 
-      setFlowProgress((current) =>
-        Math.abs(current - progress) < 0.002 ? current : progress
-      );
       setActiveFlowStep((current) =>
         current === nextStep ? current : nextStep
       );
@@ -675,7 +670,6 @@ export function StorefrontPage() {
   const cardOneTranslateY = 200 - 200 * cardOneProgress;
   const cardTwoTranslateY = 300 - 280 * cardTwoProgress;
   const cardThreeTranslateY = 380 - 330 * cardThreeProgress;
-  const flowVirtualIndex = flowProgress * (HOME_FLOW_STEPS.length - 1);
 
   const formatMetricValue = (value: number, metric: HomeMetric) => {
     if (metric.decimals && metric.decimals > 0) {
@@ -1091,52 +1085,6 @@ export function StorefrontPage() {
                       </article>
                     ))}
                   </div>
-                </div>
-
-                <div className="relative hidden h-full overflow-hidden rounded-[28px] border border-[color:var(--border)] bg-[linear-gradient(150deg,rgba(255,255,255,0.75),rgba(248,238,227,0.68))] lg:block">
-                  {HOME_FLOW_STEPS.map((step, index) => {
-                    const delta = index - flowVirtualIndex;
-                    const translateY = 58 + delta * 82;
-                    const scale = Math.max(0.84, 1 - Math.abs(delta) * 0.08);
-                    const opacity = Math.max(0.16, 1 - Math.abs(delta) * 0.45);
-                    const product =
-                      showcaseProducts[index % showcaseProducts.length];
-
-                    return (
-                      <article
-                        key={step.badge}
-                        className="absolute left-7 right-7 top-6 overflow-hidden rounded-[24px] border border-[color:var(--border)] bg-[color:var(--surface-strong)] shadow-[0_22px_50px_rgba(39,30,22,0.14)] transition-transform duration-300"
-                        style={{
-                          transform: `translateY(${translateY}px) scale(${scale})`,
-                          opacity,
-                          zIndex: HOME_FLOW_STEPS.length - index
-                        }}
-                      >
-                        <div className="grid gap-4 p-4 md:grid-cols-[220px_1fr]">
-                          <div className="h-36 overflow-hidden rounded-[18px] bg-[linear-gradient(140deg,rgba(255,248,238,0.98),rgba(233,219,207,0.85))]">
-                            <ProductImage
-                              alt={product.name}
-                              category={product.category}
-                              imageUrl={product.imageUrl}
-                              className="h-full w-full"
-                              imageClassName="h-full w-full object-cover"
-                            />
-                          </div>
-                          <div>
-                            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--accent)]">
-                              {step.badge}
-                            </p>
-                            <p className="mt-2 text-2xl font-semibold text-[var(--text)]">
-                              {product.name}
-                            </p>
-                            <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
-                              {step.description}
-                            </p>
-                          </div>
-                        </div>
-                      </article>
-                    );
-                  })}
                 </div>
               </div>
             </div>
