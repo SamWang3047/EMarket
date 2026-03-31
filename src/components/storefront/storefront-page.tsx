@@ -905,9 +905,9 @@ export function StorefrontPage() {
           >
             <div className="sticky top-20 h-[calc(100vh-7rem)]">
               <div className="flex h-full items-start">
-                <div className="relative h-[50vh] min-h-[420px] w-full -translate-y-2 overflow-hidden rounded-[32px] border border-[color:var(--border)] bg-[linear-gradient(180deg,rgba(255,251,246,0.88),rgba(246,236,225,0.72))] p-4 md:-translate-y-4 md:p-6">
+                <div className="relative h-[50vh] min-h-[420px] w-full -translate-y-2 overflow-hidden rounded-[32px] border border-[color:var(--border)] bg-[linear-gradient(180deg,#fffbf6,#f6ece1)] p-4 md:-translate-y-4 md:p-6">
                   <article
-                    className="absolute left-4 right-4 top-4 z-10 overflow-hidden rounded-[28px] border border-[color:var(--border)] bg-[color:var(--surface-strong)] shadow-[0_28px_70px_rgba(39,30,22,0.15)] transition-transform duration-100 md:left-8 md:right-8"
+                    className="absolute left-4 right-4 top-4 z-10 overflow-hidden rounded-[28px] border border-[color:var(--border)] bg-white shadow-[0_28px_70px_rgba(39,30,22,0.15)] transition-transform duration-100 md:left-8 md:right-8"
                     style={{
                       transform: `translateY(${cardOneTranslateY}px) scale(1)`
                     }}
@@ -940,10 +940,10 @@ export function StorefrontPage() {
                   </article>
 
                   <article
-                    className="absolute left-4 right-4 top-10 z-20 overflow-hidden rounded-[28px] border border-[color:var(--border)] bg-[color:var(--surface-strong)] shadow-[0_30px_75px_rgba(39,30,22,0.18)] transition-transform duration-100 md:left-8 md:right-8"
+                    className="absolute left-4 right-4 top-10 z-20 overflow-hidden rounded-[28px] border border-[color:var(--border)] bg-white shadow-[0_30px_75px_rgba(39,30,22,0.18)] transition-transform duration-100 md:left-8 md:right-8"
                     style={{
                       transform: `translateY(${cardTwoTranslateY}px) scale(${0.985 + cardTwoProgress * 0.015})`,
-                      opacity: 0.2 + cardTwoProgress * 0.8
+                      opacity: cardTwoProgress > 0 ? 1 : 0
                     }}
                   >
                     <div className="grid gap-4 p-4 md:grid-cols-[320px_1fr] md:gap-6 md:p-6">
@@ -974,10 +974,10 @@ export function StorefrontPage() {
                   </article>
 
                   <article
-                    className="absolute left-4 right-4 top-16 z-30 overflow-hidden rounded-[28px] border border-[color:var(--border)] bg-[color:var(--surface-strong)] shadow-[0_32px_82px_rgba(39,30,22,0.2)] transition-transform duration-100 md:left-8 md:right-8"
+                    className="absolute left-4 right-4 top-16 z-30 overflow-hidden rounded-[28px] border border-[color:var(--border)] bg-white shadow-[0_32px_82px_rgba(39,30,22,0.2)] transition-transform duration-100 md:left-8 md:right-8"
                     style={{
                       transform: `translateY(${cardThreeTranslateY}px) scale(${0.97 + cardThreeProgress * 0.03})`,
-                      opacity: 0.12 + cardThreeProgress * 0.88
+                      opacity: cardThreeProgress > 0 ? 1 : 0
                     }}
                   >
                     <div className="grid gap-4 p-4 md:grid-cols-[320px_1fr] md:gap-6 md:p-6">
