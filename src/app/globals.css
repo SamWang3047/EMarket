@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
-:root {
+:root,
+:root[data-theme="sand"] {
   color-scheme: light;
   --bg: #f3ece2;
   --surface: rgba(255, 249, 240, 0.84);
@@ -11,6 +12,89 @@
   --accent: #c66634;
   --accent-strong: #a64d24;
   --shadow: 0 24px 60px rgba(76, 52, 28, 0.1);
+  --header-bg: rgba(255, 255, 255, 0.9);
+  --hero-bg: #9bbbec;
+  --hero-text: #111111;
+  --hero-muted: rgba(17, 17, 17, 0.76);
+  --action: #1664ff;
+  --action-hover: #0f52d9;
+  --action-contrast: #ffffff;
+  --body-radial: rgba(199, 107, 47, 0.18);
+  --body-bg-start: #f8f4eb;
+  --theme-chip-bg: rgba(255, 255, 255, 0.72);
+  --theme-chip-active-bg: #1f1a15;
+  --theme-chip-active-text: #ffffff;
+  --showcase-shell-bg-start: #fffbf6;
+  --showcase-shell-bg-end: #f6ece1;
+  --showcase-card-bg: #ffffff;
+  --metrics-bg-start: rgba(255, 251, 245, 0.95);
+  --metrics-bg-end: rgba(242, 231, 219, 0.86);
+  --flow-bg-start: rgba(255, 253, 248, 0.94);
+  --flow-bg-end: rgba(242, 232, 221, 0.82);
+}
+
+:root[data-theme="evergreen"] {
+  color-scheme: light;
+  --bg: #e8f1e8;
+  --surface: rgba(242, 249, 242, 0.88);
+  --surface-strong: rgba(251, 255, 250, 0.94);
+  --text: #173226;
+  --muted: #5b7467;
+  --border: rgba(35, 89, 63, 0.18);
+  --accent: #2d8d5f;
+  --accent-strong: #216f4a;
+  --shadow: 0 24px 60px rgba(25, 78, 51, 0.14);
+  --header-bg: rgba(246, 252, 247, 0.9);
+  --hero-bg: #9fc6ad;
+  --hero-text: #102b20;
+  --hero-muted: rgba(16, 43, 32, 0.78);
+  --action: #1f7f51;
+  --action-hover: #17643f;
+  --action-contrast: #ffffff;
+  --body-radial: rgba(55, 156, 103, 0.22);
+  --body-bg-start: #f2f8f2;
+  --theme-chip-bg: rgba(255, 255, 255, 0.7);
+  --theme-chip-active-bg: #154f35;
+  --theme-chip-active-text: #ffffff;
+  --showcase-shell-bg-start: #f3f9f2;
+  --showcase-shell-bg-end: #dfebdf;
+  --showcase-card-bg: #fbfffb;
+  --metrics-bg-start: rgba(244, 252, 243, 0.96);
+  --metrics-bg-end: rgba(227, 240, 226, 0.9);
+  --flow-bg-start: rgba(244, 251, 243, 0.94);
+  --flow-bg-end: rgba(223, 236, 221, 0.86);
+}
+
+:root[data-theme="graphite"] {
+  color-scheme: dark;
+  --bg: #151b22;
+  --surface: rgba(28, 35, 44, 0.9);
+  --surface-strong: rgba(36, 44, 55, 0.96);
+  --text: #f5f7fb;
+  --muted: #aab6c5;
+  --border: rgba(172, 190, 213, 0.2);
+  --accent: #86cfff;
+  --accent-strong: #60b5f1;
+  --shadow: 0 24px 64px rgba(0, 0, 0, 0.38);
+  --header-bg: rgba(20, 26, 34, 0.92);
+  --hero-bg: #2e4662;
+  --hero-text: #f5f9ff;
+  --hero-muted: rgba(234, 242, 252, 0.84);
+  --action: #71c4ff;
+  --action-hover: #58afea;
+  --action-contrast: #07131f;
+  --body-radial: rgba(114, 175, 239, 0.24);
+  --body-bg-start: #10171f;
+  --theme-chip-bg: rgba(18, 23, 30, 0.86);
+  --theme-chip-active-bg: #e9f2ff;
+  --theme-chip-active-text: #0d1a2a;
+  --showcase-shell-bg-start: #1f2730;
+  --showcase-shell-bg-end: #1a2129;
+  --showcase-card-bg: #27323e;
+  --metrics-bg-start: rgba(35, 43, 54, 0.96);
+  --metrics-bg-end: rgba(30, 37, 47, 0.9);
+  --flow-bg-start: rgba(35, 43, 53, 0.94);
+  --flow-bg-end: rgba(28, 35, 44, 0.86);
 }
 
 * {
@@ -23,9 +107,12 @@ body {
   min-height: 100%;
   font-family: Georgia, "Times New Roman", serif;
   background:
-    radial-gradient(circle at top, rgba(199, 107, 47, 0.18), transparent 32%),
-    linear-gradient(180deg, #f8f4eb 0%, var(--bg) 100%);
+    radial-gradient(circle at top, var(--body-radial), transparent 32%),
+    linear-gradient(180deg, var(--body-bg-start) 0%, var(--bg) 100%);
   color: var(--text);
+  transition:
+    background 280ms ease,
+    color 280ms ease;
 }
 
 body {

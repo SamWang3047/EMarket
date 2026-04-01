@@ -46,9 +46,16 @@ const PRIMARY_NAV = [
 ] as const;
 
 const SECONDARY_NAV = ["Start", "Sell", "Manage", "Learn", "Pricing"];
+const THEME_STORAGE_KEY = "emarket.theme";
+const THEMES = [
+  { id: "sand", label: "Sand" },
+  { id: "evergreen", label: "Evergreen" },
+  { id: "graphite", label: "Graphite" }
+] as const;
 
 type PrimaryNavItem = (typeof PRIMARY_NAV)[number];
 type StorefrontView = "Home" | PrimaryNavItem;
+type ThemeId = (typeof THEMES)[number]["id"];
 type ShowcaseProduct = Pick<
   Product,
   "name" | "description" | "price" | "category" | "imageUrl"
@@ -284,7 +291,11 @@ function ProductDetailWindow({
                     onClick={() => onAdd(product)}
                     disabled={product.stock <= 0}
                     size="lg"
-                    className="bg-black text-white shadow-none hover:bg-black/85"
+                    className="shadow-none hover:brightness-95"
+                    style={{
+                      backgroundColor: "var(--action)",
+                      color: "var(--action-contrast)"
+                    }}
                   >
                     Add to bag
                   </Button>
@@ -321,6 +332,7 @@ export function StorefrontPage() {
     ProductCategory | undefined
   >();
   const [activeView, setActiveView] = useState<StorefrontView>("Home");
+  const [theme, setTheme] = useState<ThemeId>("sand");
   const [showcaseProgress, setShowcaseProgress] = useState(0);
   const [metricValues, setMetricValues] = useState(() =>
     HOME_METRICS.map(() => 0)
@@ -423,6 +435,25 @@ export function StorefrontPage() {
       window.scrollTo({ top: 0, behavior: "smooth" });
     });
   };
+
+  useEffect(() => {
+    const savedRaw = window.localStorage.getItem(THEME_STORAGE_KEY);
+    const saved = savedRaw === "ocean" ? "evergreen" : savedRaw;
+    const validTheme = THEMES.some((item) => item.id === saved);
+
+    if (savedRaw === "ocean") {
+      window.localStorage.setItem(THEME_STORAGE_KEY, "evergreen");
+    }
+
+    if (validTheme) {
+      setTheme(saved as ThemeId);
+    }
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    window.localStorage.setItem(THEME_STORAGE_KEY, theme);
+  }, [theme]);
 
   useEffect(() => {
     const onWheel = (event: WheelEvent) => {
@@ -681,7 +712,7 @@ export function StorefrontPage() {
 
   return (
     <main className="min-h-screen [font-family:'Avenir_Next','Helvetica_Neue','Segoe_UI',sans-serif]">
-      <header className="sticky top-0 z-40 border-b border-black/10 bg-white/90 backdrop-blur">
+      <header className="sticky top-0 z-40 border-b border-[color:var(--border)] bg-[color:var(--header-bg)] backdrop-blur">
         <div className="mx-auto flex w-full max-w-[1700px] items-center justify-between px-4 py-3 md:px-8">
           <div className="flex items-center gap-8">
             <button
@@ -691,14 +722,14 @@ export function StorefrontPage() {
             >
               EMarket
             </button>
-            <nav className="hidden items-center gap-6 text-[15px] text-black/80 lg:flex">
+            <nav className="hidden items-center gap-6 text-[15px] text-[var(--muted)] lg:flex">
               {PRIMARY_NAV.map((item) => (
                 <button
                   key={item}
                   type="button"
                   className={cn(
-                    "transition hover:text-black",
-                    activeView === item && "font-semibold text-black"
+                    "transition hover:text-[var(--text)]",
+                    activeView === item && "font-semibold text-[var(--text)]"
                   )}
                   onClick={() => {
                     setIsProductDialogOpen(false);
@@ -720,27 +751,65 @@ export function StorefrontPage() {
               ))}
             </nav>
           </div>
-          <div className="hidden items-center gap-5 text-sm md:flex">
+          <div className="hidden items-center gap-3 text-sm md:flex">
+            <div className="flex items-center gap-1 rounded-full border border-[color:var(--border)] bg-[color:var(--theme-chip-bg)] p-1">
+              {THEMES.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  className={cn(
+                    "rounded-full px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] transition",
+                    theme === item.id
+                      ? "bg-[color:var(--theme-chip-active-bg)] text-[color:var(--theme-chip-active-text)]"
+                      : "text-[var(--muted)] hover:text-[var(--text)]"
+                  )}
+                  onClick={() => setTheme(item.id)}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
             <Button
-              className="h-10 bg-[#1664ff] px-5 text-white shadow-none hover:bg-[#0f52d9]"
+              className="h-10 px-5 shadow-none hover:brightness-95"
+              style={{
+                backgroundColor: "var(--action)",
+                color: "var(--action-contrast)"
+              }}
               size="sm"
             >
               Log in
             </Button>
           </div>
         </div>
-        <div className="border-t border-black/10">
+        <div className="border-t border-[color:var(--border)]">
           <div className="mx-auto flex w-full max-w-[1700px] items-center justify-between px-4 py-3 md:px-8">
             <p className="text-lg font-semibold tracking-[-0.02em]">
               eCommerce
             </p>
             <div className="flex items-center gap-2 md:gap-3">
-              <nav className="hidden items-center gap-5 text-[15px] text-black/80 md:flex">
+              <div className="flex items-center gap-1 rounded-full border border-[color:var(--border)] bg-[color:var(--theme-chip-bg)] p-1 md:hidden">
+                {THEMES.map((item) => (
+                  <button
+                    key={`mobile-${item.id}`}
+                    type="button"
+                    className={cn(
+                      "rounded-full px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.1em] transition",
+                      theme === item.id
+                        ? "bg-[color:var(--theme-chip-active-bg)] text-[color:var(--theme-chip-active-text)]"
+                        : "text-[var(--muted)]"
+                    )}
+                    onClick={() => setTheme(item.id)}
+                  >
+                    {item.label.slice(0, 1)}
+                  </button>
+                ))}
+              </div>
+              <nav className="hidden items-center gap-5 text-[15px] text-[var(--muted)] md:flex">
                 {SECONDARY_NAV.map((item) => (
                   <button
                     key={item}
                     type="button"
-                    className="transition hover:text-black"
+                    className="transition hover:text-[var(--text)]"
                   >
                     {item}
                   </button>
@@ -752,24 +821,28 @@ export function StorefrontPage() {
         </div>
       </header>
 
-      <section className="bg-[#9bbbec]">
+      <section className="bg-[color:var(--hero-bg)] transition-colors">
         <div className="mx-auto flex w-full max-w-[1220px] flex-col items-center px-6 pb-20 pt-16 text-center md:px-10 md:pb-24 md:pt-20">
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-black/72 md:text-sm">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--hero-muted)] md:text-sm">
             Build an ecommerce website
           </p>
-          <h1 className="mt-6 text-5xl font-medium leading-[0.95] tracking-[-0.04em] text-black md:text-8xl">
+          <h1 className="mt-6 text-5xl font-medium leading-[0.95] tracking-[-0.04em] text-[color:var(--hero-text)] md:text-8xl">
             Sell sooner.
             <br />
             Scale without limits.
           </h1>
-          <p className="mt-8 max-w-2xl text-lg leading-8 text-black/78 md:text-[34px] md:leading-[1.4]">
+          <p className="mt-8 max-w-2xl text-lg leading-8 text-[color:var(--hero-muted)] md:text-[34px] md:leading-[1.4]">
             Run your storefront, manage products, and complete checkout on one
             clean flow.
           </p>
           <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
             <Button
               size="lg"
-              className="h-12 bg-black px-7 text-base text-white shadow-none hover:bg-black/85"
+              className="h-12 px-7 text-base shadow-none hover:brightness-95"
+              style={{
+                backgroundColor: "var(--action)",
+                color: "var(--action-contrast)"
+              }}
               onClick={openProductSection}
             >
               View Products
@@ -778,12 +851,12 @@ export function StorefrontPage() {
               asChild
               size="lg"
               variant="secondary"
-              className="h-12 border-black/20 bg-white/85 px-7 text-base text-black hover:bg-white"
+              className="h-12 border-[color:var(--border)] bg-[color:var(--surface-strong)] px-7 text-base text-[var(--text)] hover:brightness-95"
             >
               <Link href="/checkout">Go to Checkout</Link>
             </Button>
           </div>
-          <p className="mt-4 text-sm text-black/66">
+          <p className="mt-4 text-sm text-[color:var(--hero-muted)]">
             {pagination?.total ?? 0} products ready to browse.
           </p>
         </div>
@@ -829,7 +902,7 @@ export function StorefrontPage() {
           {(isLoading || isPending) && <ProductGridSkeleton />}
 
           {!isLoading && !isPending && error ? (
-            <Card className="rounded-[28px] border-[color:var(--border)] bg-white/80">
+            <Card className="rounded-[28px] border-[color:var(--border)] bg-[color:var(--surface)]">
               <CardContent className="p-6 text-sm text-[var(--muted)]">
                 Failed to load products. {error.message}
               </CardContent>
@@ -839,7 +912,7 @@ export function StorefrontPage() {
           {!isLoading && !isPending && !error ? (
             <>
               {products.length === 0 ? (
-                <Card className="rounded-[28px] border-[color:var(--border)] bg-white/80">
+                <Card className="rounded-[28px] border-[color:var(--border)] bg-[color:var(--surface)]">
                   <CardContent className="p-6 text-sm text-[var(--muted)]">
                     No products found for this category.
                   </CardContent>
@@ -903,9 +976,15 @@ export function StorefrontPage() {
             ref={showcaseRef}
             className="relative mx-auto w-full max-w-[1480px] px-4 py-0 md:px-8 md:py-0"
           >
-            <div className="relative h-[50vh] min-h-[420px] w-full -translate-y-2 overflow-hidden rounded-[32px] border border-[color:var(--border)] bg-[linear-gradient(180deg,#fffbf6,#f6ece1)] p-4 md:-translate-y-4 md:p-6">
+            <div
+              className="relative h-[50vh] min-h-[420px] w-full -translate-y-2 overflow-hidden rounded-[32px] border border-[color:var(--border)] p-4 md:-translate-y-4 md:p-6"
+              style={{
+                background:
+                  "linear-gradient(180deg,var(--showcase-shell-bg-start),var(--showcase-shell-bg-end))"
+              }}
+            >
               <article
-                className="absolute left-4 right-4 top-4 z-10 overflow-hidden rounded-[28px] border border-[color:var(--border)] bg-white shadow-[0_28px_70px_rgba(39,30,22,0.15)] transition-transform duration-100 md:left-8 md:right-8"
+                className="absolute left-4 right-4 top-4 z-10 overflow-hidden rounded-[28px] border border-[color:var(--border)] bg-[color:var(--showcase-card-bg)] shadow-[0_28px_70px_rgba(39,30,22,0.15)] transition-transform duration-100 md:left-8 md:right-8"
                 style={{
                   transform: `translateY(${cardOneTranslateY}px) scale(1)`
                 }}
@@ -938,7 +1017,7 @@ export function StorefrontPage() {
               </article>
 
               <article
-                className="absolute left-4 right-4 top-10 z-20 overflow-hidden rounded-[28px] border border-[color:var(--border)] bg-white shadow-[0_30px_75px_rgba(39,30,22,0.18)] transition-transform duration-100 md:left-8 md:right-8"
+                className="absolute left-4 right-4 top-10 z-20 overflow-hidden rounded-[28px] border border-[color:var(--border)] bg-[color:var(--showcase-card-bg)] shadow-[0_30px_75px_rgba(39,30,22,0.18)] transition-transform duration-100 md:left-8 md:right-8"
                 style={{
                   transform: `translateY(${cardTwoTranslateY}px) scale(${0.985 + cardTwoProgress * 0.015})`,
                   opacity: cardTwoProgress > 0 ? 1 : 0
@@ -972,7 +1051,7 @@ export function StorefrontPage() {
               </article>
 
               <article
-                className="absolute left-4 right-4 top-16 z-30 overflow-hidden rounded-[28px] border border-[color:var(--border)] bg-white shadow-[0_32px_82px_rgba(39,30,22,0.2)] transition-transform duration-100 md:left-8 md:right-8"
+                className="absolute left-4 right-4 top-16 z-30 overflow-hidden rounded-[28px] border border-[color:var(--border)] bg-[color:var(--showcase-card-bg)] shadow-[0_32px_82px_rgba(39,30,22,0.2)] transition-transform duration-100 md:left-8 md:right-8"
                 style={{
                   transform: `translateY(${cardThreeTranslateY}px) scale(${0.97 + cardThreeProgress * 0.03})`,
                   opacity: cardThreeProgress > 0 ? 1 : 0
@@ -1012,12 +1091,18 @@ export function StorefrontPage() {
             data-home-reveal
             className="home-reveal mx-auto w-full max-w-[1480px] px-4 pb-6 md:px-8"
           >
-            <div className="rounded-[32px] border border-[color:var(--border)] bg-[linear-gradient(160deg,rgba(255,251,245,0.95),rgba(242,231,219,0.86))] p-6 md:p-8">
+            <div
+              className="rounded-[32px] border border-[color:var(--border)] p-6 md:p-8"
+              style={{
+                background:
+                  "linear-gradient(160deg,var(--metrics-bg-start),var(--metrics-bg-end))"
+              }}
+            >
               <div className="grid gap-4 md:grid-cols-3">
                 {HOME_METRICS.map((metric, index) => (
                   <article
                     key={metric.label}
-                    className="rounded-[24px] border border-[color:var(--border)] bg-white/70 p-5"
+                    className="rounded-[24px] border border-[color:var(--border)] bg-[color:var(--surface-strong)] p-5"
                   >
                     <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--accent)]">
                       {metric.label}
@@ -1039,7 +1124,13 @@ export function StorefrontPage() {
             data-home-reveal
             className="home-reveal relative mx-auto h-[220vh] w-full max-w-[1480px] px-4 pb-10 md:px-8"
           >
-            <div className="sticky top-24 h-[calc(100vh-8rem)] overflow-hidden rounded-[32px] border border-[color:var(--border)] bg-[linear-gradient(180deg,rgba(255,253,248,0.94),rgba(242,232,221,0.82))] p-5 md:p-8">
+            <div
+              className="sticky top-24 h-[calc(100vh-8rem)] overflow-hidden rounded-[32px] border border-[color:var(--border)] p-5 md:p-8"
+              style={{
+                background:
+                  "linear-gradient(180deg,var(--flow-bg-start),var(--flow-bg-end))"
+              }}
+            >
               <div className="grid h-full gap-6 lg:grid-cols-[0.95fr_1.05fr]">
                 <div className="flex h-full flex-col">
                   <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--accent)]">
@@ -1053,7 +1144,7 @@ export function StorefrontPage() {
                       <article
                         key={step.title}
                         className={cn(
-                          "rounded-[20px] border border-[color:var(--border)] bg-white/70 p-4 transition-all duration-400",
+                          "rounded-[20px] border border-[color:var(--border)] bg-[color:var(--surface-strong)] p-4 transition-all duration-400",
                           index === activeFlowStep
                             ? "shadow-[0_14px_36px_rgba(38,27,18,0.12)]"
                             : "opacity-70"
@@ -1095,7 +1186,11 @@ export function StorefrontPage() {
             )}
           >
             <Button
-              className="pointer-events-auto h-12 rounded-full bg-black px-6 text-sm text-white shadow-[0_18px_38px_rgba(14,14,14,0.26)] hover:bg-black/85"
+              className="pointer-events-auto h-12 rounded-full px-6 text-sm shadow-[0_18px_38px_rgba(14,14,14,0.26)] hover:brightness-95"
+              style={{
+                backgroundColor: "var(--action)",
+                color: "var(--action-contrast)"
+              }}
               onClick={openProductSection}
             >
               Browse Products
@@ -1104,7 +1199,7 @@ export function StorefrontPage() {
         </>
       ) : (
         <section className="mx-auto w-full max-w-[1480px] px-4 py-8 md:px-8 md:py-10">
-          <Card className="rounded-[28px] border-[color:var(--border)] bg-white/80">
+          <Card className="rounded-[28px] border-[color:var(--border)] bg-[color:var(--surface)]">
             <CardContent className="p-8">
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--accent)]">
                 {activeView}
