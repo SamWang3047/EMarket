@@ -53,6 +53,8 @@ pnpm db:seed        # seed demo data
 
 ## Theme Colors (Three Variants)
 
+![Demo GIF](demo.gif)
+
 Theme switching is available from the homepage header and persisted to `localStorage`.
 
 ### 1) Sand
