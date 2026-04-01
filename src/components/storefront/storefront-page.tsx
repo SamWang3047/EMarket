@@ -667,9 +667,9 @@ export function StorefrontPage() {
   const cardTwoProgress = getRangeProgress(showcaseProgress, 0.2, 0.45);
   const cardThreeProgress = getRangeProgress(showcaseProgress, 0.45, 0.72);
 
-  const cardOneTranslateY = 200 - 200 * cardOneProgress;
-  const cardTwoTranslateY = 300 - 280 * cardTwoProgress;
-  const cardThreeTranslateY = 380 - 330 * cardThreeProgress;
+  const cardOneTranslateY = 120 - 120 * cardOneProgress;
+  const cardTwoTranslateY = 220 - 200 * cardTwoProgress;
+  const cardThreeTranslateY = 300 - 250 * cardThreeProgress;
 
   const formatMetricValue = (value: number, metric: HomeMetric) => {
     if (metric.decimals && metric.decimals > 0) {
