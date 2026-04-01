@@ -974,10 +974,10 @@ export function StorefrontPage() {
         <>
           <section
             ref={showcaseRef}
-            className="relative mx-auto w-full max-w-[1480px] px-4 py-0 md:px-8 md:py-0"
+            className="relative mx-auto w-full max-w-[1480px] px-4 pt-6 md:px-8 md:pt-8"
           >
             <div
-              className="relative h-[50vh] min-h-[420px] w-full -translate-y-2 overflow-hidden rounded-[32px] border border-[color:var(--border)] p-4 md:-translate-y-4 md:p-6"
+              className="relative h-[50vh] min-h-[420px] w-full overflow-hidden rounded-[32px] border border-[color:var(--border)] p-4 md:p-6"
               style={{
                 background:
                   "linear-gradient(180deg,var(--showcase-shell-bg-start),var(--showcase-shell-bg-end))"
