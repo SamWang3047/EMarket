@@ -3,16 +3,7 @@
 import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import {
-  ArrowLeft,
-  BadgeCheck,
-  Minus,
-  PackageCheck,
-  Plus,
-  ShieldCheck,
-  Trash2,
-  Truck
-} from "lucide-react";
+import { ArrowLeft, Minus, Plus, Trash2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { toast } from "sonner";
@@ -23,7 +14,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -114,11 +104,10 @@ export function CheckoutPage() {
             <Badge>Your bag is empty</Badge>
             <div className="space-y-3">
               <h1 className="text-4xl font-semibold tracking-tight text-[var(--text)]">
-                Nothing to check out yet
+                Checkout is empty
               </h1>
               <p className="mx-auto max-w-xl text-sm leading-7 text-[var(--muted)]">
-                Add a few products from the storefront first, then come back to
-                complete the order.
+                Add products first, then return to place your order.
               </p>
             </div>
             <Button asChild size="lg">
@@ -135,20 +124,13 @@ export function CheckoutPage() {
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-[1480px] flex-col gap-8 px-4 py-4 md:px-8 md:py-8">
-      <header className="rounded-[32px] border border-[color:var(--border)] bg-[rgba(255,250,244,0.82)] px-5 py-5 shadow-[var(--shadow)] backdrop-blur-xl md:px-7">
+      <header className="rounded-[32px] border border-[color:var(--border)] bg-[color:var(--surface)] px-5 py-5 shadow-[var(--shadow)] backdrop-blur-xl md:px-7">
         <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
-          <div className="space-y-3">
+          <div>
             <Badge>Secure checkout</Badge>
-            <div>
-              <h1 className="text-4xl font-semibold tracking-tight text-[var(--text)] md:text-5xl">
-                Complete your order
-              </h1>
-              <p className="mt-3 max-w-2xl text-sm leading-7 text-[var(--muted)]">
-                Shipping details are validated with react-hook-form and zod,
-                while the order itself still goes through the transactional
-                inventory path.
-              </p>
-            </div>
+            <h1 className="mt-3 text-4xl font-semibold tracking-tight text-[var(--text)] md:text-5xl">
+              Complete your order
+            </h1>
           </div>
           <div className="flex flex-wrap gap-2">
             <Button asChild variant="secondary">
@@ -157,7 +139,7 @@ export function CheckoutPage() {
                 Continue shopping
               </Link>
             </Button>
-            <div className="rounded-full border border-[color:var(--border)] bg-white/80 px-4 py-2 text-sm text-[var(--muted)]">
+            <div className="rounded-full border border-[color:var(--border)] bg-[color:var(--surface-strong)] px-4 py-2 text-sm text-[var(--muted)]">
               {itemCount} item{itemCount === 1 ? "" : "s"} in bag
             </div>
           </div>
@@ -166,38 +148,6 @@ export function CheckoutPage() {
 
       <section className="grid gap-6 xl:grid-cols-[minmax(0,1.05fr)_460px]">
         <div className="space-y-6">
-          <Card className="rounded-[34px] border-[color:var(--border)] bg-[linear-gradient(135deg,#fff8f1_0%,#f5e6d9_100%)]">
-            <CardContent className="grid gap-4 p-6 md:grid-cols-3 md:p-8">
-              <div className="rounded-3xl bg-white/72 p-5">
-                <Truck className="h-5 w-5 text-[var(--accent)]" />
-                <p className="mt-3 text-lg font-semibold text-[var(--text)]">
-                  Dispatch promise
-                </p>
-                <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
-                  In-stock items are prepared for shipment quickly.
-                </p>
-              </div>
-              <div className="rounded-3xl bg-white/72 p-5">
-                <ShieldCheck className="h-5 w-5 text-[var(--accent)]" />
-                <p className="mt-3 text-lg font-semibold text-[var(--text)]">
-                  Safe transaction path
-                </p>
-                <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
-                  Inventory checks and order creation are handled atomically.
-                </p>
-              </div>
-              <div className="rounded-3xl bg-white/72 p-5">
-                <PackageCheck className="h-5 w-5 text-[var(--accent)]" />
-                <p className="mt-3 text-lg font-semibold text-[var(--text)]">
-                  Snapshot accuracy
-                </p>
-                <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
-                  Address and purchase price are stored with the order.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-
           <Card className="rounded-[34px] border-[color:var(--border)] bg-[color:var(--surface-strong)]">
             <CardContent className="space-y-6 p-6 md:p-8">
               <div>
@@ -220,10 +170,6 @@ export function CheckoutPage() {
                         <FormControl>
                           <Input placeholder="Jane Doe" {...field} />
                         </FormControl>
-                        <FormDescription>
-                          Demo checkout assumes the customer is already signed
-                          in.
-                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -241,10 +187,6 @@ export function CheckoutPage() {
                             {...field}
                           />
                         </FormControl>
-                        <FormDescription>
-                          The address is saved on the order as a purchase-time
-                          snapshot.
-                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -267,7 +209,7 @@ export function CheckoutPage() {
         </div>
 
         <div className="space-y-6 xl:sticky xl:top-8 xl:self-start">
-          <Card className="rounded-[34px] border-[color:var(--border)] bg-[rgba(255,255,255,0.86)]">
+          <Card className="rounded-[34px] border-[color:var(--border)] bg-[color:var(--surface-strong)]">
             <CardContent className="space-y-5 p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -323,7 +265,7 @@ export function CheckoutPage() {
                     <Separator className="my-4" />
 
                     <div className="flex items-center justify-between gap-4">
-                      <div className="flex items-center gap-2 rounded-full border border-[color:var(--border)] bg-white px-2 py-1">
+                      <div className="flex items-center gap-2 rounded-full border border-[color:var(--border)] bg-[color:var(--surface-strong)] px-2 py-1">
                         <Button
                           variant="ghost"
                           size="sm"
@@ -378,20 +320,6 @@ export function CheckoutPage() {
                   <span>{formatCurrency(subtotal)}</span>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-
-          <Card className="rounded-[34px] border-[color:var(--border)] bg-[rgba(35,29,25,0.94)] text-white">
-            <CardContent className="space-y-4 p-6">
-              <div className="flex items-center gap-3">
-                <BadgeCheck className="h-5 w-5" />
-                <p className="font-semibold">Why this feels like a real flow</p>
-              </div>
-              <p className="text-sm leading-7 text-white/75">
-                Form validation, local bag state, and transactional order
-                submission are all wired together, so the polished UI still sits
-                on top of real backend behavior.
-              </p>
             </CardContent>
           </Card>
         </div>

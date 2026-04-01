@@ -11,9 +11,9 @@ const buttonVariants = cva(
         default:
           "bg-[var(--accent)] text-white shadow-[0_12px_24px_rgba(198,102,52,0.28)] hover:bg-[var(--accent-strong)] focus-visible:ring-[var(--accent)]",
         secondary:
-          "border border-[color:var(--border)] bg-white/70 text-[var(--text)] hover:bg-white focus-visible:ring-[var(--accent)]",
+          "border border-[color:var(--border)] bg-[color:var(--surface-strong)] text-[var(--text)] hover:brightness-95 focus-visible:ring-[var(--accent)]",
         ghost:
-          "text-[var(--muted)] hover:bg-white/60 hover:text-[var(--text)] focus-visible:ring-[var(--accent)]"
+          "text-[var(--muted)] hover:bg-[color:var(--surface)] hover:text-[var(--text)] focus-visible:ring-[var(--accent)]"
       },
       size: {
         default: "h-10 px-4 py-2",

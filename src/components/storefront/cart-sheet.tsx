@@ -34,7 +34,7 @@ export function CartSheet() {
       <SheetTrigger asChild>
         <Button
           variant="secondary"
-          className="rounded-full border-[color:var(--border)] bg-white/80"
+          className="rounded-full border-[color:var(--border)] bg-[color:var(--surface-strong)]"
         >
           <ShoppingBag className="mr-2 h-4 w-4" />
           Bag ({itemCount})
@@ -50,7 +50,7 @@ export function CartSheet() {
 
         <div className="flex-1 overflow-y-auto px-6 pb-6">
           {!items.length ? (
-            <div className="rounded-3xl border border-dashed border-[color:var(--border)] bg-white/60 p-8 text-center text-sm leading-6 text-[var(--muted)]">
+            <div className="rounded-3xl border border-dashed border-[color:var(--border)] bg-[color:var(--surface)] p-8 text-center text-sm leading-6 text-[var(--muted)]">
               Your bag is empty. Pick a few desk essentials and they will show
               up here instantly.
             </div>
@@ -59,7 +59,7 @@ export function CartSheet() {
               {items.map((item) => (
                 <div
                   key={item.productId}
-                  className="rounded-3xl border border-[color:var(--border)] bg-white/70 p-4"
+                  className="rounded-3xl border border-[color:var(--border)] bg-[color:var(--surface)] p-4"
                 >
                   <div className="flex items-start gap-4">
                     <div className="h-20 w-20 overflow-hidden rounded-2xl bg-[linear-gradient(145deg,rgba(217,187,164,0.32),rgba(255,255,255,0.84))]">
@@ -91,7 +91,7 @@ export function CartSheet() {
                   </div>
 
                   <div className="mt-4 flex items-center justify-between">
-                    <div className="flex items-center gap-2 rounded-full border border-[color:var(--border)] bg-white px-2 py-1">
+                    <div className="flex items-center gap-2 rounded-full border border-[color:var(--border)] bg-[color:var(--surface-strong)] px-2 py-1">
                       <Button
                         variant="ghost"
                         size="sm"
@@ -131,7 +131,7 @@ export function CartSheet() {
 
         <SheetFooter className="border-t border-[color:var(--border)] bg-[color:var(--surface)]">
           <div className="w-full space-y-4">
-            <div className="rounded-2xl bg-white/70 p-4">
+            <div className="rounded-2xl bg-[color:var(--surface-strong)] p-4">
               <div className="flex items-center justify-between text-sm text-[var(--muted)]">
                 <span>Items</span>
                 <span>{itemCount}</span>

@@ -236,9 +236,11 @@ function ProductDetailWindow({
         />
         <DialogPrimitive.Content className="fixed inset-0 z-50 flex items-center justify-center p-4 outline-none pointer-events-none">
           <div
-            className="pointer-events-auto relative h-[80vh] w-[80vw] max-h-[920px] max-w-[1400px] overflow-hidden rounded-[30px] border border-[color:var(--border)] bg-[linear-gradient(145deg,rgba(255,255,255,0.98),rgba(245,233,223,0.92))] shadow-[0_45px_120px_rgba(16,14,12,0.42)]"
+            className="pointer-events-auto relative h-[80vh] w-[80vw] max-h-[920px] max-w-[1400px] overflow-hidden rounded-[30px] border border-[color:var(--border)] shadow-[0_45px_120px_rgba(16,14,12,0.42)]"
             style={{
-              animation: `product-dialog-grow-in ${animationMs}ms cubic-bezier(0.16,1,0.3,1) both`
+              animation: `product-dialog-grow-in ${animationMs}ms cubic-bezier(0.16,1,0.3,1) both`,
+              background:
+                "linear-gradient(145deg,var(--surface-strong),var(--surface))"
             }}
           >
             <div className="grid h-full grid-cols-1 lg:grid-cols-[1.05fr_0.95fr]">
@@ -308,7 +310,10 @@ function ProductDetailWindow({
               </div>
             </div>
 
-            <DialogPrimitive.Close className="absolute right-4 top-4 rounded-full bg-white/85 p-2 text-[var(--muted)] transition hover:bg-white hover:text-[var(--text)]">
+            <DialogPrimitive.Close
+              className="absolute right-4 top-4 rounded-full p-2 text-[var(--muted)] transition hover:brightness-95 hover:text-[var(--text)]"
+              style={{ backgroundColor: "var(--surface-strong)" }}
+            >
               <X className="h-5 w-5" />
               <span className="sr-only">Close</span>
             </DialogPrimitive.Close>
@@ -867,7 +872,7 @@ export function StorefrontPage() {
           id="product-section"
           className="mx-auto w-full max-w-[1480px] space-y-6 px-4 py-8 md:px-8 md:py-10"
         >
-          <div className="flex flex-col gap-4 rounded-[28px] border border-[color:var(--border)] bg-[rgba(255,252,247,0.74)] p-5 md:flex-row md:items-center md:justify-between">
+          <div className="flex flex-col gap-4 rounded-[28px] border border-[color:var(--border)] bg-[color:var(--surface)] p-5 md:flex-row md:items-center md:justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--accent)]">
                 Catalog
