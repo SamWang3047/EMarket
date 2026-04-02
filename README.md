@@ -4,6 +4,8 @@ EMarket is a compact ecommerce showcase project built with `Next.js`, `TypeScrip
 
 The focus is engineering quality over feature volume: clear structure, testable flows, and deployable setup.
 
+![alt text](image-2.png)
+
 ## Highlights
 
 - Product listing with category filters and pagination
