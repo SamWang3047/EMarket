@@ -119,9 +119,3 @@ tests/
 .github/workflows/
   ci.yml
 ```
-
-## Notes
-
-- Checkout currently uses a demo user (full auth is intentionally out of scope)
-- Prices are stored as integer cents to avoid floating-point errors
-- Critical order transaction behavior is covered by tests
