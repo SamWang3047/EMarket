@@ -74,7 +74,7 @@ Theme switching is available from the homepage header and persisted to `localSto
 - Style: high-contrast dark palette, technical look
 - Good for: night demos and dense visual content
 
-Theme tokens:
+Theme token:
 
 - `src/app/globals.css`
 
