@@ -4,6 +4,14 @@ import { BadRequestError } from "@/server/errors";
 import { OrderService } from "@/server/services/order-service";
 
 const orderService = new OrderService();
+let hasDatabase = false;
+
+try {
+  await prisma.$connect();
+  hasDatabase = true;
+} catch {
+  hasDatabase = false;
+}
 
 async function resetDatabase() {
   await prisma.orderItem.deleteMany();
@@ -24,7 +32,9 @@ async function createUser() {
   });
 }
 
-describe("OrderService", () => {
+const describeIfDatabase = hasDatabase ? describe : describe.skip;
+
+describeIfDatabase("OrderService", () => {
   beforeEach(async () => {
     await resetDatabase();
   });

@@ -4,6 +4,12 @@ import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import type { Product } from "@/types/product";
 
+const noopStorage = {
+  getItem: () => null,
+  setItem: () => undefined,
+  removeItem: () => undefined
+};
+
 export type CartItem = {
   productId: string;
   name: string;
@@ -82,7 +88,9 @@ export const useCartStore = create<CartState>()(
     }),
     {
       name: "emarket-cart",
-      storage: createJSONStorage(() => localStorage),
+      storage: createJSONStorage(() =>
+        typeof window === "undefined" ? noopStorage : localStorage
+      ),
       partialize: (state) => ({
         items: state.items
       })
