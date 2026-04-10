@@ -2,35 +2,9 @@ import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import { prisma } from "@/lib/prisma";
 import { BadRequestError } from "@/server/errors";
 import { OrderService } from "@/server/services/order-service";
+import { createUser, hasDatabase, resetDatabase } from "./helpers/database";
 
 const orderService = new OrderService();
-let hasDatabase = false;
-
-try {
-  await prisma.$connect();
-  hasDatabase = true;
-} catch {
-  hasDatabase = false;
-}
-
-async function resetDatabase() {
-  await prisma.orderItem.deleteMany();
-  await prisma.order.deleteMany();
-  await prisma.cartItem.deleteMany();
-  await prisma.product.deleteMany();
-  await prisma.user.deleteMany();
-}
-
-async function createUser() {
-  return prisma.user.create({
-    data: {
-      email: `customer-${crypto.randomUUID()}@example.com`,
-      passwordHash: "hashed-password",
-      firstName: "Test",
-      lastName: "User"
-    }
-  });
-}
 
 const describeIfDatabase = hasDatabase ? describe : describe.skip;
 
