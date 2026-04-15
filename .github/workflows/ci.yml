@@ -5,6 +5,11 @@ on:
   pull_request:
     branches:
       - main
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
   workflow_dispatch:
 
 concurrency:
@@ -59,6 +64,7 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -72,11 +78,52 @@ jobs:
       - name: Generate Prisma client
         run: pnpm exec prisma generate
 
+      - name: Validate Prisma schema
+        run: pnpm exec prisma validate
+
       - name: Apply migrations
         run: pnpm exec prisma migrate deploy
 
       - name: Run quality checks
         run: pnpm check
+
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: quality
+    defaults:
+      run:
+        shell: bash
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/emarket?schema=public
+      NODE_ENV: production
+      CI: true
+      PORT: 3000
+      APP_PORT: 3000
+      NEXT_TELEMETRY_DISABLED: 1
+      PRISMA_HIDE_UPDATE_MESSAGE: 1
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.32.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma client
+        run: pnpm exec prisma generate
 
       - name: Build application
         run: pnpm build
