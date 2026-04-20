@@ -69,7 +69,7 @@ export function CheckoutPage() {
         },
         body: JSON.stringify({
           userId: DEMO_CUSTOMER_ID,
-          shippingAddress: `${values.fullName} · ${values.shippingAddress}`,
+          shippingAddress: `${values.fullName}, ${values.shippingAddress}`,
           items: items.map((item) => ({
             productId: item.productId,
             quantity: item.quantity

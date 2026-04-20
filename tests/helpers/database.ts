@@ -1,12 +1,26 @@
 import { prisma } from "@/lib/prisma";
+import { env } from "@/lib/env";
+
+function isSafeTestDatabaseUrl(databaseUrl: string) {
+  try {
+    const url = new URL(databaseUrl);
+    const databaseName = url.pathname.replace(/^\//, "").toLowerCase();
+
+    return databaseName.includes("test");
+  } catch {
+    return false;
+  }
+}
 
 let hasDatabase = false;
 
-try {
-  await prisma.$connect();
-  hasDatabase = true;
-} catch {
-  hasDatabase = false;
+if (env.NODE_ENV === "test" && isSafeTestDatabaseUrl(env.DATABASE_URL)) {
+  try {
+    await prisma.$connect();
+    hasDatabase = true;
+  } catch {
+    hasDatabase = false;
+  }
 }
 
 export { hasDatabase };

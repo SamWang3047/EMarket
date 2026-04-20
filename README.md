@@ -1,20 +1,30 @@
 # EMarket
 
-EMarket is a compact ecommerce showcase project built with `Next.js`, `TypeScript`, `PostgreSQL`, and `Prisma`.
+EMarket is a compact ecommerce showcase built with `Next.js`, `TypeScript`, `PostgreSQL`, and `Prisma`.
 
-The focus is engineering quality over feature volume: clear structure, testable flows, and deployable setup.
+It is intentionally small in scope and biased toward engineering quality: clear module boundaries, transactional backend flows, and a homepage that behaves like a polished product demo instead of a CRUD template.
 
-![alt text](image-2.png)
+![Project Preview](image-2.png)
 
 ## Highlights
 
-- Product listing with category filters and pagination
-- Local cart state (`Zustand` + `localStorage`)
-- Transactional checkout and stock deduction
-- Scroll-driven homepage interactions (stacked cards, metrics animation, floating CTA)
-- 3-theme runtime switcher with persistence
-- Docker-based local database setup
-- GitHub Actions CI pipeline
+- Scroll-driven storefront homepage with stacked product cards, animated metrics, and floating CTA behavior
+- Product catalog with category filters, pagination, and in-page product detail modal
+- Local bag state powered by `Zustand` with checkout summary and transactional order creation
+- PostgreSQL + Prisma backend with service and repository layers
+- Runtime theme switcher with three palettes: `Sand`, `Evergreen`, and `Graphite`
+- GitHub Actions pipeline for quality checks, database-backed tests, and production build verification
+
+## Stack
+
+- Next.js 15
+- React 19
+- TypeScript
+- Prisma
+- PostgreSQL
+- Zustand
+- Zod
+- Vitest
 
 ## Quick Start
 
@@ -22,9 +32,9 @@ The focus is engineering quality over feature volume: clear structure, testable 
 
 - Node.js 22+
 - pnpm 10+
-- Docker (for local PostgreSQL)
+- Docker
 
-### Run locally
+### Local development
 
 ```bash
 cp .env.example .env
@@ -41,81 +51,123 @@ Open:
 - `http://127.0.0.1:4510`
 - `http://127.0.0.1:4510/checkout`
 
-## Common Commands
+## Commands
 
 ```bash
-pnpm dev            # start dev server
-pnpm build          # production build
-pnpm test           # run tests
+pnpm dev            # start the local dev server
+pnpm build          # create a production build
+pnpm test           # run the Vitest suite
 pnpm check          # lint + format + typecheck + test
-pnpm format         # format files
+pnpm format         # format the repo
+pnpm db:generate    # regenerate Prisma client
 pnpm db:migrate     # run local migrations
 pnpm db:seed        # seed demo data
 ```
 
-## Theme Colors (Three Variants)
+## Themes
 
-![Demo GIF](demo.gif)
+![Theme Demo](demo.gif)
 
-Theme switching is available from the homepage header and persisted to `localStorage`.
+Theme switching is available in the storefront header and is persisted in `localStorage`.
 
-### 1) Sand
+### Sand
 
-- Style: warm, neutral, default showcase palette
-- Good for: general demos and product presentation
+Warm neutral palette intended for default product demos.
 
-### 2) Evergreen
+### Evergreen
 
-- Style: deep green family, calm and grounded
-- Good for: trust-oriented and product-focused presentation
+Deep green palette for a calmer and more grounded storefront look.
 
-### 3) Graphite
+### Graphite
 
-- Style: high-contrast dark palette, technical look
-- Good for: night demos and dense visual content
+High-contrast dark palette for denser, more technical presentation.
 
-Theme token:
+Theme tokens live in `src/app/globals.css`. Theme state is handled from `src/components/storefront/storefront-page.tsx` and `src/components/storefront/storefront-page-hooks.ts`.
 
-- `src/app/globals.css`
+## Testing
 
-Theme switching logic:
+The test suite mixes fast unit tests with database-backed integration tests.
 
-- `src/components/storefront/storefront-page.tsx`
-- `src/app/layout.tsx` (theme bootstrap on initial load)
+Current coverage includes:
 
-## Continuous Integration
+- storefront configuration helpers
+- cart store behavior
+- currency formatting
+- order service transactions
+- order repository relation loading
+- Prisma product CRUD
 
-Workflow file:
+### Important test database rule
 
-- `.github/workflows/ci.yml`
+Database integration tests only run when `DATABASE_URL` points to a database whose name contains `test`.
+
+This is a deliberate safeguard to prevent test cleanup from wiping development data.
+
+Example:
+
+```bash
+set DATABASE_URL=postgresql://postgres:postgres@localhost:5432/emarket_test?schema=public
+pnpm exec prisma migrate deploy
+pnpm exec prisma generate
+pnpm test
+```
+
+If you are using PowerShell:
+
+```powershell
+$env:DATABASE_URL='postgresql://postgres:postgres@localhost:5432/emarket_test?schema=public'
+pnpm exec prisma migrate deploy
+pnpm exec prisma generate
+pnpm test
+```
+
+## CI
+
+Workflow file: `.github/workflows/ci.yml`
+
+The pipeline has two jobs:
+
+1. `quality`
+2. `build`
+
+`quality` provisions PostgreSQL, targets `emarket_test`, validates Prisma, applies migrations, and runs `pnpm check`.
+
+`build` runs after `quality` succeeds and verifies the production build.
 
 Triggers:
 
-- Push to `main`
-- Pull request to `main`
-- Manual trigger (`workflow_dispatch`)
+- push to any branch
+- pull requests targeting `main`
+- manual dispatch
 
-Pipeline steps:
-
-1. Install dependencies
-2. Prisma generate + migrate deploy
-3. `pnpm check`
-4. `pnpm build`
-
-## Project Structure (Compact)
+## Project Structure
 
 ```text
 src/
-  app/                # pages and API routes
-  components/         # feature and UI components
-  hooks/              # React hooks
-  server/             # services, repositories, schemas
-  stores/             # Zustand stores
+  app/                         # app router pages and API routes
+  components/
+    checkout/                  # checkout screen
+    product/                   # shared product image rendering
+    providers/                 # query provider
+    storefront/                # storefront modules and homepage sections
+    ui/                        # reusable UI primitives
+  hooks/                       # client data hooks
+  lib/                         # shared helpers, env, constants, formatters
+  server/                      # repositories, services, schemas, errors
+  stores/                      # Zustand state
+  types/                       # shared TypeScript types
 prisma/
   schema.prisma
   seed.ts
+  migrations/
 tests/
+  helpers/
+  storefront-page-config.test.ts
+  cart-store.test.ts
+  format.test.ts
   order-service.test.ts
+  order-repository.test.ts
+  prisma-product-crud.test.ts
 .github/workflows/
   ci.yml
 ```

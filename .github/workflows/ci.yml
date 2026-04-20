@@ -30,19 +30,19 @@ jobs:
       postgres:
         image: postgres:16-alpine
         env:
-          POSTGRES_DB: emarket
+          POSTGRES_DB: emarket_test
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U postgres -d emarket"
+          --health-cmd "pg_isready -U postgres -d emarket_test"
           --health-interval 5s
           --health-timeout 5s
           --health-retries 10
 
     env:
-      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/emarket?schema=public
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/emarket_test?schema=public
       NODE_ENV: test
       CI: true
       PORT: 3000
@@ -95,7 +95,7 @@ jobs:
       run:
         shell: bash
     env:
-      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/emarket?schema=public
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/emarket_test?schema=public
       NODE_ENV: production
       CI: true
       PORT: 3000
