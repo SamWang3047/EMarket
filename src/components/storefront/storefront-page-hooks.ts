@@ -18,6 +18,7 @@ export function useStorefrontTheme() {
   const [theme, setTheme] = useState<ThemeId>("sand");
 
   useEffect(() => {
+    // Keep backward compatibility with the older "ocean" theme id.
     const savedRaw = window.localStorage.getItem(THEME_STORAGE_KEY);
     const saved = savedRaw === "ocean" ? "evergreen" : savedRaw;
     const validTheme = THEMES.some((item) => item.id === saved);
@@ -100,6 +101,8 @@ export function useHomeInteractions({
         direction > 0
           ? Math.min(1, current + step)
           : Math.max(0, current - step);
+      // The stacked-card sequence locks page scroll until the active
+      // forward/reverse pass has finished.
       const shouldLockScroll =
         (directionState === "forward" && direction > 0 && current < 1) ||
         (directionState === "reverse" && direction < 0 && current > 0);
@@ -141,6 +144,7 @@ export function useHomeInteractions({
       return;
     }
 
+    // Generic reveal hook for sections that fade in once they enter view.
     const revealNodes = Array.from(
       document.querySelectorAll<HTMLElement>("[data-home-reveal]")
     );
@@ -194,6 +198,8 @@ export function useHomeInteractions({
         const startTime = performance.now();
 
         const tick = (now: number) => {
+          // Ease out so the metric cards feel more like a demo counter
+          // than a linear stopwatch.
           const t = Math.min((now - startTime) / HOME_METRIC_DURATION_MS, 1);
           const eased = 1 - Math.pow(1 - t, 3);
 
@@ -261,6 +267,7 @@ export function useHomeInteractions({
         return;
       }
 
+      // Map the sticky flow section's viewport travel to the active step index.
       const rect = flowSection.getBoundingClientRect();
       const start = window.innerHeight * 0.82;
       const end = window.innerHeight * 0.2;

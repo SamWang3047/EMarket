@@ -32,6 +32,8 @@ function normalizeImageUrl(imageUrl?: string | null) {
     const url = new URL(normalized);
 
     if (url.hostname === "images.unsplash.com") {
+      // Normalize common Unsplash params so product cards and modals request
+      // consistently sized assets.
       url.searchParams.set("auto", "format");
       url.searchParams.set("fit", "crop");
       if (!url.searchParams.has("w")) {
@@ -63,6 +65,7 @@ export function ProductImage({
   );
 
   useEffect(() => {
+    // Reset the fallback whenever the underlying image URL changes.
     setHasError(false);
   }, [normalizedImageUrl]);
 

@@ -4,6 +4,8 @@ import { OrderRepository } from "@/server/repositories/order-repository";
 import type { CreateOrderInput } from "@/server/schemas/order";
 
 function groupItemsByProduct(items: CreateOrderInput["items"]) {
+  // Merge duplicate product lines so stock checks and totals are computed once
+  // per product inside the transaction.
   const quantities = new Map<string, number>();
 
   for (const item of items) {
@@ -56,6 +58,8 @@ export class OrderService {
       );
 
       for (const item of normalizedItems) {
+        // updateMany gives us an atomic "decrement only if enough stock exists"
+        // check without a separate read-then-write race.
         const updated = await tx.product.updateMany({
           where: {
             id: item.productId,
@@ -78,6 +82,7 @@ export class OrderService {
         }
       }
 
+      // Total is derived from the locked product snapshot used for this order.
       const totalAmount = normalizedItems.reduce((sum, item) => {
         const product = productMap.get(item.productId);
         return sum + (product?.price ?? 0) * item.quantity;
@@ -99,6 +104,8 @@ export class OrderService {
       });
     });
 
+    // Re-read through the repository so the response includes related user and
+    // item/product records in the same shape as the API returns.
     const createdOrder = await this.orderRepository.findById(order.id);
 
     if (!createdOrder) {

@@ -4,6 +4,8 @@ import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import type { Product } from "@/types/product";
 
+// Tests and non-browser imports still construct the store, so persistence
+// needs a safe fallback when localStorage is unavailable.
 const noopStorage = {
   getItem: () => null,
   setItem: () => undefined,
@@ -45,6 +47,7 @@ export const useCartStore = create<CartState>()(
                   ? {
                       ...item,
                       stock: product.stock,
+                      // Keep bag quantity aligned with the latest stock value.
                       quantity: Math.min(item.quantity + 1, product.stock)
                     }
                   : item
@@ -78,6 +81,7 @@ export const useCartStore = create<CartState>()(
               item.productId === productId
                 ? {
                     ...item,
+                    // Quantity cannot drop below 1 or exceed current stock.
                     quantity: Math.max(1, Math.min(quantity, item.stock))
                   }
                 : item
