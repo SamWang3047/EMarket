@@ -16,7 +16,7 @@ describeIfDatabase("OrderRepository", () => {
     await prisma.$disconnect();
   });
 
-  it("finds an order with its items, products, and user", async () => {
+  it("returns a public order receipt without user credentials", async () => {
     const user = await createUser();
     const product = await prisma.product.create({
       data: {
@@ -44,18 +44,14 @@ describeIfDatabase("OrderRepository", () => {
       }
     });
 
-    const found = await orderRepository.findById(order.id);
+    const found = await orderRepository.findReceiptById(order.id);
 
     expect(found).not.toBeNull();
     expect(found).toEqual(
       expect.objectContaining({
         id: order.id,
-        userId: user.id,
         totalAmount: 29800,
-        user: expect.objectContaining({
-          id: user.id,
-          email: user.email
-        }),
+        status: "PENDING",
         items: [
           expect.objectContaining({
             quantity: 2,
@@ -68,10 +64,19 @@ describeIfDatabase("OrderRepository", () => {
         ]
       })
     );
+
+    expect(found).not.toHaveProperty("user");
+    expect(found).not.toHaveProperty("userId");
+    expect(found).not.toHaveProperty("shippingAddress");
+
+    const serialized = JSON.stringify(found);
+
+    expect(serialized).not.toContain("passwordHash");
+    expect(serialized).not.toContain(user.passwordHash);
   });
 
   it("returns null when the order does not exist", async () => {
-    const found = await orderRepository.findById("missing-order-id");
+    const found = await orderRepository.findReceiptById("missing-order-id");
 
     expect(found).toBeNull();
   });

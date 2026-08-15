@@ -104,9 +104,9 @@ export class OrderService {
       });
     });
 
-    // Re-read through the repository so the response includes related user and
-    // item/product records in the same shape as the API returns.
-    const createdOrder = await this.orderRepository.findById(order.id);
+    // Re-read the created order using an explicit public receipt projection.
+    // Internal user and credential fields never cross the repository boundary.
+    const createdOrder = await this.orderRepository.findReceiptById(order.id);
 
     if (!createdOrder) {
       throw new NotFoundError("Order not found after creation.");
