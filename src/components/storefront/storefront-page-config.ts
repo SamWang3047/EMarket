@@ -36,6 +36,7 @@ export type ShowcaseProduct = Pick<
 export type HomeMetric = {
   label: string;
   helper: string;
+  prefix?: string;
   suffix: string;
   target: number;
   decimals?: number;
@@ -43,42 +44,43 @@ export type HomeMetric = {
 
 export const HOME_METRICS: HomeMetric[] = [
   {
-    label: "Checkout Conversion",
-    helper: "Average uplift after cleaner PDP flow",
-    suffix: "%",
-    target: 37
+    label: "Curated essentials",
+    helper: "A focused catalog without the endless aisle",
+    suffix: "+",
+    target: 14
   },
   {
-    label: "Cart Recovery",
-    helper: "Triggered by smart follow-up nudges",
-    suffix: "%",
-    target: 18
+    label: "Desk categories",
+    helper: "Everything from focus audio to warm lighting",
+    suffix: "",
+    target: 7
   },
   {
-    label: "Time To Publish",
-    helper: "From product draft to live catalog",
-    suffix: " min",
-    target: 12
+    label: "Clear checkout",
+    helper: "A single, direct path from bag to order",
+    suffix: " step",
+    target: 1
   }
 ];
 
 export const HOME_FLOW_STEPS = [
   {
     badge: "Step 01",
-    title: "Launch your hero product first",
+    title: "Clear the visual noise.",
     description:
-      "Pin one primary offer and make the value obvious in the first scroll."
+      "Start with a quieter surface and the few tools you reach for every day."
   },
   {
     badge: "Step 02",
-    title: "Stack social proof right below",
+    title: "Tune every detail.",
     description:
-      "Surface real results and high-intent testimonials while attention is still hot."
+      "Choose tactile, reliable essentials that make long sessions feel lighter."
   },
   {
     badge: "Step 03",
-    title: "Close with a compact action block",
-    description: "End the page with one strong action and zero decision noise."
+    title: "Keep what earns its place.",
+    description:
+      "Build a setup that stays useful, looks considered, and leaves room to think."
   }
 ] as const;
 
@@ -141,8 +143,8 @@ export function getRangeProgress(value: number, start: number, end: number) {
 
 export function formatMetricValue(value: number, metric: HomeMetric) {
   if (metric.decimals && metric.decimals > 0) {
-    return `${value.toFixed(metric.decimals)}${metric.suffix}`;
+    return `${metric.prefix ?? ""}${value.toFixed(metric.decimals)}${metric.suffix}`;
   }
 
-  return `${Math.round(value)}${metric.suffix}`;
+  return `${metric.prefix ?? ""}${Math.round(value)}${metric.suffix}`;
 }

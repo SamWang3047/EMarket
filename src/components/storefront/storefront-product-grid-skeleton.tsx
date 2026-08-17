@@ -1,27 +1,20 @@
 import { PAGE_SIZE } from "@/components/storefront/storefront-page-config";
-import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export function ProductGridSkeleton() {
   return (
-    <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+    <div className="grid gap-x-5 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
       {Array.from({ length: PAGE_SIZE }).map((_, index) => (
-        <Card
-          key={index}
-          className="overflow-hidden rounded-[28px] border-[color:var(--border)] bg-[color:var(--surface-strong)]"
-        >
-          <Skeleton className="aspect-[4/3] rounded-none" />
-          <CardContent className="space-y-4 p-5">
-            <Skeleton className="h-8 w-3/4" />
-            <Skeleton className="h-16 w-full" />
-            <Separator />
-            <div className="flex items-center justify-between">
-              <Skeleton className="h-14 w-28" />
-              <Skeleton className="h-10 w-28 rounded-full" />
+        <div key={index}>
+          <Skeleton className="aspect-[4/5] rounded-[18px]" />
+          <div className="mt-4 flex items-start justify-between">
+            <div className="space-y-2">
+              <Skeleton className="h-5 w-40" />
+              <Skeleton className="h-4 w-20" />
             </div>
-          </CardContent>
-        </Card>
+            <Skeleton className="h-10 w-10 rounded-full" />
+          </div>
+        </div>
       ))}
     </div>
   );

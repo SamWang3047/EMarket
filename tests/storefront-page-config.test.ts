@@ -75,7 +75,7 @@ describe("storefront-page-config", () => {
   });
 
   it("formats metric values with rounding rules that match the UI", () => {
-    expect(formatMetricValue(18.49, HOME_METRICS[1])).toBe("18%");
+    expect(formatMetricValue(6.49, HOME_METRICS[1])).toBe("6");
     expect(
       formatMetricValue(12.34, {
         label: "Speed",

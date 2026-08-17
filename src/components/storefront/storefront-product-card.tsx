@@ -1,7 +1,6 @@
+import { Plus } from "lucide-react";
 import { ProductImage } from "@/components/product/product-image";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { CATEGORY_LABELS } from "@/lib/constants";
 import { formatCurrency } from "@/lib/format";
 import type { Product } from "@/types/product";
@@ -14,64 +13,51 @@ type ProductCardProps = {
 
 export function ProductCard({ product, onOpen, onAdd }: ProductCardProps) {
   return (
-    <Card
-      className="group cursor-pointer overflow-hidden rounded-[28px] border-[color:var(--border)] bg-[color:var(--surface-strong)] shadow-[0_18px_36px_rgba(40,31,20,0.06)] transition-transform duration-300 hover:-translate-y-1"
-      onClick={() => onOpen(product)}
-      onKeyDown={(event) => {
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          onOpen(product);
-        }
-      }}
-      role="button"
-      tabIndex={0}
-    >
-      <div className="relative aspect-[4/3] overflow-hidden border-b border-[color:var(--border)] bg-[linear-gradient(140deg,rgba(255,248,238,0.98),rgba(233,219,207,0.85))]">
-        <div className="absolute left-4 top-4 z-10">
-          <span className="rounded-full bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">
-            {CATEGORY_LABELS[product.category]}
-          </span>
-        </div>
+    <article className="group">
+      <button
+        type="button"
+        className="relative block aspect-[4/5] w-full overflow-hidden rounded-[18px] bg-[#dedfd7] text-left"
+        onClick={() => onOpen(product)}
+        aria-label={`View ${product.name}`}
+      >
         <ProductImage
           alt={product.name}
           category={product.category}
           imageUrl={product.imageUrl}
-          imageClassName="transition-transform duration-500 group-hover:scale-[1.03]"
+          className="h-full w-full"
+          imageClassName="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.045]"
         />
-      </div>
+        <span className="absolute left-4 top-4 rounded-full bg-white/88 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.12em] text-[var(--text)] backdrop-blur-md">
+          {CATEGORY_LABELS[product.category]}
+        </span>
+      </button>
 
-      <CardContent className="space-y-3 p-5">
-        <div className="space-y-1.5">
-          <h3 className="text-xl font-semibold text-[var(--text)]">
+      <div className="mt-4 flex items-start justify-between gap-4">
+        <button
+          type="button"
+          className="min-w-0 text-left"
+          onClick={() => onOpen(product)}
+        >
+          <h3 className="truncate text-base font-medium tracking-[-0.02em] text-[var(--text)]">
             {product.name}
           </h3>
-          <p className="line-clamp-2 text-sm leading-6 text-[var(--muted)]">
-            {product.description ?? "Reliable gear for everyday desk setups."}
+          <p className="mt-1 text-sm text-[var(--muted)]">
+            {formatCurrency(product.price)}
           </p>
-        </div>
+        </button>
 
-        <Separator />
-
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <p className="text-2xl font-semibold text-[var(--text)]">
-              {formatCurrency(product.price)}
-            </p>
-            <p className="text-sm text-[var(--muted)]">
-              {product.stock} available
-            </p>
-          </div>
-          <Button
-            onClick={(event) => {
-              event.stopPropagation();
-              onAdd(product);
-            }}
-            disabled={product.stock <= 0}
-          >
-            Add to bag
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+        <Button
+          type="button"
+          variant="secondary"
+          size="sm"
+          className="h-10 w-10 shrink-0 rounded-full p-0"
+          onClick={() => onAdd(product)}
+          disabled={product.stock <= 0}
+          aria-label={`Add ${product.name} to bag`}
+        >
+          <Plus className="h-4 w-4" />
+        </Button>
+      </div>
+    </article>
   );
 }

@@ -43,18 +43,18 @@ export function StorefrontProductView({
   return (
     <section
       id="product-section"
-      className="mx-auto w-full max-w-[1480px] space-y-6 px-4 py-8 md:px-8 md:py-10"
+      className="mx-auto w-full max-w-[1320px] space-y-10 px-5 py-16 md:px-8 md:py-24"
     >
-      <div className="flex flex-col gap-4 rounded-[28px] border border-[color:var(--border)] bg-[color:var(--surface)] p-5 md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-col gap-7 border-b border-[color:var(--border)] pb-8 md:flex-row md:items-end md:justify-between">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--accent)]">
-            Catalog
+          <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--accent)]">
+            Shop all
           </p>
-          <h2 className="mt-2 text-2xl font-semibold text-[var(--text)] md:text-3xl">
+          <h1 className="mt-3 text-4xl font-medium tracking-[-0.05em] text-[var(--text)] md:text-6xl">
             {selectedCategory
               ? CATEGORY_LABELS[selectedCategory]
               : "All products"}
-          </h2>
+          </h1>
         </div>
         <div className="flex flex-wrap gap-2">
           <Button
@@ -97,7 +97,7 @@ export function StorefrontProductView({
 
           <div
             className={cn(
-              "grid gap-5 md:grid-cols-2 xl:grid-cols-3",
+              "grid gap-x-5 gap-y-10 sm:grid-cols-2 lg:grid-cols-3",
               isFetching && "opacity-70 transition-opacity"
             )}
           >

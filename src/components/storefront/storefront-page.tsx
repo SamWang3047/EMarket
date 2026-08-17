@@ -9,17 +9,13 @@ import type { Product } from "@/types/product";
 import {
   PAGE_SIZE,
   PRODUCT_DIALOG_ANIMATION_MS,
-  resolveShowcaseProducts,
-  type StorefrontView
+  resolveShowcaseProducts
 } from "@/components/storefront/storefront-page-config";
-import {
-  useHomeInteractions,
-  useStorefrontTheme
-} from "@/components/storefront/storefront-page-hooks";
+import { useHomeInteractions } from "@/components/storefront/storefront-page-hooks";
+import { StorefrontFooter } from "@/components/storefront/storefront-footer";
 import { StorefrontHeader } from "@/components/storefront/storefront-header";
 import { StorefrontHeroSection } from "@/components/storefront/storefront-hero-section";
 import { StorefrontHomeView } from "@/components/storefront/storefront-home-view";
-import { StorefrontPlaceholderView } from "@/components/storefront/storefront-placeholder-view";
 import { ProductDetailWindow } from "@/components/storefront/storefront-product-detail-window";
 import { StorefrontProductView } from "@/components/storefront/storefront-product-view";
 
@@ -28,27 +24,23 @@ export function StorefrontPage() {
   const [selectedCategory, setSelectedCategory] = useState<
     ProductCategory | undefined
   >();
-  const [activeView, setActiveView] = useState<StorefrontView>("Home");
+  const [activeView, setActiveView] = useState<"Home" | "Product">("Home");
   const [isProductDialogOpen, setIsProductDialogOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isPending, startTransition] = useTransition();
 
   const deferredCategory = useDeferredValue(selectedCategory);
   const addItem = useCartStore((state) => state.addItem);
-  const { theme, setTheme } = useStorefrontTheme();
 
   const {
-    showcaseRef,
+    heroSectionRef,
     metricsSectionRef,
-    flowSectionRef,
+    storySectionRef,
     metricValues,
-    activeFlowStep,
-    isScrollCtaVisible,
-    cardOneTranslateY,
-    cardTwoTranslateY,
-    cardThreeTranslateY,
-    cardTwoProgress,
-    cardThreeProgress
+    activeStoryStep,
+    storyProgress,
+    heroProgress,
+    isScrollCtaVisible
   } = useHomeInteractions({
     activeView,
     isProductDialogOpen
@@ -89,9 +81,11 @@ export function StorefrontPage() {
     setActiveView("Product");
     handleCategoryChange(undefined);
     requestAnimationFrame(() => {
-      document
-        .getElementById("product-section")
-        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+      requestAnimationFrame(() => {
+        document
+          .getElementById("product-section")
+          ?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
     });
   };
 
@@ -103,32 +97,25 @@ export function StorefrontPage() {
     });
   };
 
-  const handlePrimaryNavClick = (item: Exclude<StorefrontView, "Home">) => {
+  const navigateHomeSection = (sectionId: string) => {
     setIsProductDialogOpen(false);
-    setActiveView(item);
-
-    if (item === "Product") {
+    setActiveView("Home");
+    requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         document
-          .getElementById("product-section")
+          .getElementById(sectionId)
           ?.scrollIntoView({ behavior: "smooth", block: "start" });
       });
-    }
+    });
   };
 
   return (
-    <main className="min-h-screen [font-family:'Avenir_Next','Helvetica_Neue','Segoe_UI',sans-serif]">
+    <main className="min-h-screen">
       <StorefrontHeader
         activeView={activeView}
-        theme={theme}
         onHome={openHome}
-        onPrimaryNavClick={handlePrimaryNavClick}
-        onThemeChange={setTheme}
-      />
-
-      <StorefrontHeroSection
-        totalProducts={pagination?.total ?? 0}
-        onOpenProductSection={openProductSection}
+        onShop={openProductSection}
+        onNavigateHomeSection={navigateHomeSection}
       />
 
       {activeView === "Product" ? (
@@ -146,28 +133,36 @@ export function StorefrontPage() {
           onPreviousPage={() => setPage((current) => Math.max(1, current - 1))}
           onNextPage={() => setPage((current) => current + 1)}
         />
-      ) : activeView === "Home" ? (
-        <StorefrontHomeView
-          showcaseRef={showcaseRef}
-          metricsSectionRef={metricsSectionRef}
-          flowSectionRef={flowSectionRef}
-          showcaseProducts={showcaseProducts}
-          cardOneTranslateY={cardOneTranslateY}
-          cardTwoTranslateY={cardTwoTranslateY}
-          cardThreeTranslateY={cardThreeTranslateY}
-          cardTwoProgress={cardTwoProgress}
-          cardThreeProgress={cardThreeProgress}
-          metricValues={metricValues}
-          activeFlowStep={activeFlowStep}
-          isScrollCtaVisible={isScrollCtaVisible}
-          onOpenProductSection={openProductSection}
-        />
       ) : (
-        <StorefrontPlaceholderView
-          activeView={activeView as Exclude<StorefrontView, "Home" | "Product">}
-          onBackToProduct={openProductSection}
-        />
+        <>
+          <StorefrontHeroSection
+            sectionRef={heroSectionRef}
+            product={showcaseProducts[0]}
+            totalProducts={pagination?.total ?? 0}
+            scrollProgress={heroProgress}
+            onOpenProductSection={openProductSection}
+            onExploreCollection={() =>
+              navigateHomeSection("collection-section")
+            }
+          />
+          <StorefrontHomeView
+            metricsSectionRef={metricsSectionRef}
+            storySectionRef={storySectionRef}
+            showcaseProducts={showcaseProducts}
+            products={products}
+            isLoading={isLoading}
+            metricValues={metricValues}
+            activeStoryStep={activeStoryStep}
+            storyProgress={storyProgress}
+            isScrollCtaVisible={isScrollCtaVisible}
+            onOpenProductSection={openProductSection}
+            onOpenProductDetail={openProductDetail}
+            onAddToBag={handleAddToBag}
+          />
+        </>
       )}
+
+      <StorefrontFooter />
 
       <ProductDetailWindow
         open={isProductDialogOpen}

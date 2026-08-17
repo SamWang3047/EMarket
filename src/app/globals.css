@@ -1,131 +1,71 @@
 @import "tailwindcss";
 
-:root,
-:root[data-theme="sand"] {
+:root {
   color-scheme: light;
-  --bg: #f3ece2;
-  --surface: rgba(255, 249, 240, 0.84);
-  --surface-strong: rgba(255, 253, 248, 0.92);
-  --text: #1f1a15;
-  --muted: #6d6257;
-  --border: rgba(88, 65, 38, 0.14);
-  --accent: #c66634;
-  --accent-strong: #a64d24;
-  --shadow: 0 24px 60px rgba(76, 52, 28, 0.1);
-  --header-bg: rgba(255, 255, 255, 0.9);
-  --hero-bg: #9bbbec;
-  --hero-text: #111111;
-  --hero-muted: rgba(17, 17, 17, 0.76);
-  --action: #1664ff;
-  --action-hover: #0f52d9;
+  --bg: #f1f0e9;
+  --canvas: #f7f6f0;
+  --surface: rgba(255, 255, 252, 0.78);
+  --surface-strong: #fffefa;
+  --text: #171914;
+  --muted: #686b62;
+  --border: rgba(23, 25, 20, 0.13);
+  --accent: #24583f;
+  --accent-strong: #173f2d;
+  --signal: #dfff58;
+  --shadow: 0 24px 70px rgba(28, 31, 24, 0.09);
+  --header-bg: rgba(247, 246, 240, 0.88);
+  --action: #171914;
+  --action-hover: #2b2e27;
   --action-contrast: #ffffff;
-  --body-radial: rgba(199, 107, 47, 0.18);
-  --body-bg-start: #f8f4eb;
-  --theme-chip-bg: rgba(255, 255, 255, 0.72);
-  --theme-chip-active-bg: #1f1a15;
-  --theme-chip-active-text: #ffffff;
-  --showcase-shell-bg-start: #fffbf6;
-  --showcase-shell-bg-end: #f6ece1;
-  --showcase-card-bg: #ffffff;
-  --metrics-bg-start: rgba(255, 251, 245, 0.95);
-  --metrics-bg-end: rgba(242, 231, 219, 0.86);
-  --flow-bg-start: rgba(255, 253, 248, 0.94);
-  --flow-bg-end: rgba(242, 232, 221, 0.82);
-}
-
-:root[data-theme="evergreen"] {
-  color-scheme: light;
-  --bg: #e8f1e8;
-  --surface: rgba(242, 249, 242, 0.88);
-  --surface-strong: rgba(251, 255, 250, 0.94);
-  --text: #173226;
-  --muted: #5b7467;
-  --border: rgba(35, 89, 63, 0.18);
-  --accent: #2d8d5f;
-  --accent-strong: #216f4a;
-  --shadow: 0 24px 60px rgba(25, 78, 51, 0.14);
-  --header-bg: rgba(246, 252, 247, 0.9);
-  --hero-bg: #9fc6ad;
-  --hero-text: #102b20;
-  --hero-muted: rgba(16, 43, 32, 0.78);
-  --action: #1f7f51;
-  --action-hover: #17643f;
-  --action-contrast: #ffffff;
-  --body-radial: rgba(55, 156, 103, 0.22);
-  --body-bg-start: #f2f8f2;
-  --theme-chip-bg: rgba(255, 255, 255, 0.7);
-  --theme-chip-active-bg: #154f35;
-  --theme-chip-active-text: #ffffff;
-  --showcase-shell-bg-start: #f3f9f2;
-  --showcase-shell-bg-end: #dfebdf;
-  --showcase-card-bg: #fbfffb;
-  --metrics-bg-start: rgba(244, 252, 243, 0.96);
-  --metrics-bg-end: rgba(227, 240, 226, 0.9);
-  --flow-bg-start: rgba(244, 251, 243, 0.94);
-  --flow-bg-end: rgba(223, 236, 221, 0.86);
-}
-
-:root[data-theme="graphite"] {
-  color-scheme: dark;
-  --bg: #151b22;
-  --surface: rgba(28, 35, 44, 0.9);
-  --surface-strong: rgba(36, 44, 55, 0.96);
-  --text: #f5f7fb;
-  --muted: #aab6c5;
-  --border: rgba(172, 190, 213, 0.2);
-  --accent: #86cfff;
-  --accent-strong: #60b5f1;
-  --shadow: 0 24px 64px rgba(0, 0, 0, 0.38);
-  --header-bg: rgba(20, 26, 34, 0.92);
-  --hero-bg: #2e4662;
-  --hero-text: #f5f9ff;
-  --hero-muted: rgba(234, 242, 252, 0.84);
-  --action: #71c4ff;
-  --action-hover: #58afea;
-  --action-contrast: #07131f;
-  --body-radial: rgba(114, 175, 239, 0.24);
-  --body-bg-start: #10171f;
-  --theme-chip-bg: rgba(18, 23, 30, 0.86);
-  --theme-chip-active-bg: #e9f2ff;
-  --theme-chip-active-text: #0d1a2a;
-  --showcase-shell-bg-start: #1f2730;
-  --showcase-shell-bg-end: #1a2129;
-  --showcase-card-bg: #27323e;
-  --metrics-bg-start: rgba(35, 43, 54, 0.96);
-  --metrics-bg-end: rgba(30, 37, 47, 0.9);
-  --flow-bg-start: rgba(35, 43, 53, 0.94);
-  --flow-bg-end: rgba(28, 35, 44, 0.86);
 }
 
 * {
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 88px;
+}
+
 html,
 body {
   margin: 0;
   min-height: 100%;
-  font-family: Georgia, "Times New Roman", serif;
-  background:
-    radial-gradient(circle at top, var(--body-radial), transparent 32%),
-    linear-gradient(180deg, var(--body-bg-start) 0%, var(--bg) 100%);
+  background: var(--bg);
   color: var(--text);
-  transition:
-    background 280ms ease,
-    color 280ms ease;
+  font-family:
+    var(--font-geist),
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
 }
 
 body {
   min-height: 100vh;
-  background-attachment: fixed;
+  overflow-x: hidden;
+  text-rendering: optimizeLegibility;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+::selection {
+  background: var(--signal);
+  color: var(--text);
 }
 
 .home-reveal {
   opacity: 0;
-  transform: translateY(28px);
+  transform: translateY(24px);
   transition:
-    opacity 620ms cubic-bezier(0.22, 1, 0.36, 1),
-    transform 620ms cubic-bezier(0.22, 1, 0.36, 1);
+    opacity 700ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .home-reveal.is-visible {
@@ -133,12 +73,43 @@ body {
   transform: translateY(0);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .home-reveal,
-  .home-reveal.is-visible {
+.hero-line {
+  display: block;
+  overflow: hidden;
+}
+
+.hero-line > span {
+  display: block;
+  animation: hero-line-in 900ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.hero-line:nth-child(2) > span {
+  animation-delay: 90ms;
+}
+
+.hero-media-in {
+  animation: hero-media-in 1050ms 120ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes hero-line-in {
+  from {
+    opacity: 0;
+    transform: translateY(105%);
+  }
+  to {
     opacity: 1;
-    transform: none;
-    transition: none;
+    transform: translateY(0);
+  }
+}
+
+@keyframes hero-media-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(28px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
   }
 }
 
@@ -154,12 +125,31 @@ body {
 @keyframes product-dialog-grow-in {
   from {
     opacity: 0;
-    transform: scale(0.55);
-    filter: blur(10px);
+    transform: translateY(18px) scale(0.975);
   }
   to {
     opacity: 1;
-    transform: scale(1);
-    filter: blur(0);
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .home-reveal,
+  .home-reveal.is-visible {
+    opacity: 1;
+    transform: none;
   }
 }

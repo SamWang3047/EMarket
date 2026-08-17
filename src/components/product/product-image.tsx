@@ -11,6 +11,7 @@ type ProductImageProps = {
   className?: string;
   imageClassName?: string;
   imageUrl?: string | null;
+  priority?: boolean;
 };
 
 function normalizeImageUrl(imageUrl?: string | null) {
@@ -56,7 +57,8 @@ export function ProductImage({
   category,
   className,
   imageClassName,
-  imageUrl
+  imageUrl,
+  priority = false
 }: ProductImageProps) {
   const [hasError, setHasError] = useState(false);
   const normalizedImageUrl = useMemo(
@@ -76,7 +78,8 @@ export function ProductImage({
         src={normalizedImageUrl}
         alt={alt}
         className={cn("h-full w-full object-cover", className, imageClassName)}
-        loading="lazy"
+        loading={priority ? "eager" : "lazy"}
+        fetchPriority={priority ? "high" : "auto"}
         decoding="async"
         referrerPolicy="no-referrer"
         onError={() => setHasError(true)}
