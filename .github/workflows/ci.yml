@@ -94,6 +94,20 @@ jobs:
     defaults:
       run:
         shell: bash
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: emarket_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d emarket_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     env:
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/emarket_test?schema=public
       NODE_ENV: production
@@ -125,5 +139,41 @@ jobs:
       - name: Generate Prisma client
         run: pnpm exec prisma generate
 
+      - name: Apply migrations
+        run: pnpm exec prisma migrate deploy
+
       - name: Build application
         run: pnpm build
+
+      - name: Build runtime container
+        run: docker build --target runner --tag emarket-ci .
+
+      - name: Start runtime container
+        run: >-
+          docker run --detach --name emarket-ci
+          --add-host host.docker.internal:host-gateway
+          --publish 3000:3000
+          --env DATABASE_URL=postgresql://postgres:postgres@host.docker.internal:5432/emarket_test?schema=public
+          --env APP_BASIC_AUTH_USER=ci-owner
+          --env APP_BASIC_AUTH_PASSWORD=ci-personal-password
+          emarket-ci
+
+      - name: Smoke test runtime container
+        run: |
+          for attempt in {1..30}; do
+            if curl --fail --silent --user ci-owner:ci-personal-password http://127.0.0.1:3000/api/products >/dev/null; then
+              break
+            fi
+            if [ "$attempt" -eq 30 ]; then
+              docker logs emarket-ci
+              exit 1
+            fi
+            sleep 1
+          done
+
+          test "$(curl --silent --output /dev/null --write-out '%{http_code}' http://127.0.0.1:3000/)" = "401"
+          curl --fail --silent --user ci-owner:ci-personal-password http://127.0.0.1:3000/ >/dev/null
+
+      - name: Stop runtime container
+        if: always()
+        run: docker rm --force emarket-ci || true

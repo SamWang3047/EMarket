@@ -24,13 +24,13 @@ function groupItemsByProduct(items: CreateOrderInput["items"]) {
 export class OrderService {
   constructor(private readonly orderRepository = new OrderRepository()) {}
 
-  async createOrder(input: CreateOrderInput) {
+  async createOrder(userId: string, input: CreateOrderInput) {
     const normalizedItems = groupItemsByProduct(input.items);
 
     const order = await prisma.$transaction(async (tx) => {
       const user = await tx.user.findFirst({
         where: {
-          id: input.userId,
+          id: userId,
           deletedAt: null
         }
       });

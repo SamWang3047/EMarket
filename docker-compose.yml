@@ -1,38 +1,50 @@
 services:
   db:
     image: postgres:16-alpine
-    container_name: emarket-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: emarket
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ${POSTGRES_DB:-emarket}
+      POSTGRES_USER: ${POSTGRES_USER:-emarket}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
     ports:
-      - "5432:5432"
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d emarket"]
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 5s
       timeout: 5s
       retries: 10
+
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: migrator
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-emarket}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-emarket}?schema=public
+      NODE_ENV: production
+    restart: "no"
 
   app:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: emarket-app
+      target: runner
     depends_on:
-      db:
-        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     environment:
-      DATABASE_URL: postgresql://postgres:postgres@db:5432/emarket?schema=public
+      DATABASE_URL: postgresql://${POSTGRES_USER:-emarket}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-emarket}?schema=public
+      APP_BASIC_AUTH_USER: ${APP_BASIC_AUTH_USER:?Set APP_BASIC_AUTH_USER in .env}
+      APP_BASIC_AUTH_PASSWORD: ${APP_BASIC_AUTH_PASSWORD:?Set APP_BASIC_AUTH_PASSWORD in .env}
       NODE_ENV: production
       PORT: 3000
     ports:
       - "${APP_PORT:-3000}:3000"
-    command: >
-      sh -c "pnpm exec prisma migrate deploy && pnpm start"
 
 volumes:
   postgres-data:

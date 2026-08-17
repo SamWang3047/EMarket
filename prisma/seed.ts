@@ -1,9 +1,17 @@
+import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
 import { DEMO_ADMIN_ID, DEMO_CUSTOMER_ID } from "../src/lib/demo-user";
+import { assertSafeToSeed } from "../src/server/database-safety";
 
 const prisma = new PrismaClient();
 
 async function main() {
+  assertSafeToSeed({
+    databaseUrl: process.env.DATABASE_URL,
+    nodeEnv: process.env.NODE_ENV,
+    allowRemoteSeed: process.env.ALLOW_REMOTE_DATABASE_SEED === "true"
+  });
+
   await prisma.cartItem.deleteMany();
   await prisma.orderItem.deleteMany();
   await prisma.order.deleteMany();

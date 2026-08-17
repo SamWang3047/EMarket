@@ -51,6 +51,10 @@ Open:
 - `http://127.0.0.1:4510`
 - `http://127.0.0.1:4510/checkout`
 
+Basic authentication is optional during local development. The credentials in
+`.env.example` are used by the production server and Docker Compose; replace
+them before exposing the application outside your machine.
+
 ## Commands
 
 ```bash
@@ -63,6 +67,35 @@ pnpm db:generate    # regenerate Prisma client
 pnpm db:migrate     # run local migrations
 pnpm db:seed        # seed demo data
 ```
+
+The seed command deletes existing application data before recreating the demo
+catalog. It is blocked when `NODE_ENV=production`, and ambiguous remote database
+URLs require `ALLOW_REMOTE_DATABASE_SEED=true`.
+
+## Production and Docker
+
+The production build uses Next.js standalone output:
+
+```bash
+pnpm build
+pnpm start
+```
+
+For the complete PostgreSQL, migration, and application stack:
+
+```bash
+cp .env.example .env
+docker compose up --build
+```
+
+Docker Compose binds PostgreSQL to localhost only, runs migrations in a one-shot
+container, and starts the application as an unprivileged user. Set strong,
+unique values for `POSTGRES_PASSWORD` and `APP_BASIC_AUTH_PASSWORD` before any
+public deployment.
+
+Production requests fail closed unless both `APP_BASIC_AUTH_USER` and
+`APP_BASIC_AUTH_PASSWORD` are configured. Browsers will display their standard
+Basic Auth sign-in prompt. Always serve the application over HTTPS.
 
 ## Themes
 
