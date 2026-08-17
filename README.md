@@ -97,6 +97,18 @@ Production requests fail closed unless both `APP_BASIC_AUTH_USER` and
 `APP_BASIC_AUTH_PASSWORD` are configured. Browsers will display their standard
 Basic Auth sign-in prompt. Always serve the application over HTTPS.
 
+### Vercel with Neon
+
+Set these Vercel environment variables before the first production deployment:
+
+- `DATABASE_URL`: the Neon pooled URL (hostname contains `-pooler`)
+- `DIRECT_URL`: the Neon direct URL, used only for production migrations
+- `APP_BASIC_AUTH_USER`: the private-site username
+- `APP_BASIC_AUTH_PASSWORD`: a strong private-site password
+
+Vercel builds run Prisma Client generation in every environment. Only production
+builds deploy pending migrations, and application functions run in Sydney.
+
 ## Themes
 
 ![Theme Demo](demo.gif)
