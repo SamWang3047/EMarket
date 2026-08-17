@@ -23,7 +23,6 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { CATEGORY_LABELS } from "@/lib/constants";
-import { DEMO_CUSTOMER_ID } from "@/lib/demo-user";
 import { formatCurrency } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import {
@@ -68,7 +67,6 @@ export function CheckoutPage() {
           "content-type": "application/json"
         },
         body: JSON.stringify({
-          userId: DEMO_CUSTOMER_ID,
           shippingAddress: `${values.fullName}, ${values.shippingAddress}`,
           items: items.map((item) => ({
             productId: item.productId,

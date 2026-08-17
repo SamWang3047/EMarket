@@ -30,8 +30,7 @@ describeIfDatabase("OrderService", () => {
       }
     });
 
-    const order = await orderService.createOrder({
-      userId: user.id,
+    const order = await orderService.createOrder(user.id, {
       shippingAddress: "123 Test Street, Sydney",
       items: [
         {
@@ -71,8 +70,7 @@ describeIfDatabase("OrderService", () => {
     });
 
     await expect(
-      orderService.createOrder({
-        userId: user.id,
+      orderService.createOrder(user.id, {
         shippingAddress: "456 Failure Road, Sydney",
         items: [
           {
@@ -113,8 +111,7 @@ describeIfDatabase("OrderService", () => {
       }
     });
 
-    await orderService.createOrder({
-      userId: user.id,
+    await orderService.createOrder(user.id, {
       shippingAddress: "789 Sequential Avenue, Sydney",
       items: [
         {
@@ -125,8 +122,7 @@ describeIfDatabase("OrderService", () => {
     });
 
     await expect(
-      orderService.createOrder({
-        userId: user.id,
+      orderService.createOrder(user.id, {
         shippingAddress: "789 Sequential Avenue, Sydney",
         items: [
           {

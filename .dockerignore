@@ -4,6 +4,12 @@
 .next
 coverage
 node_modules
+.env
+.env.*
+!.env.example
+*.tsbuildinfo
+demo.gif
+image*.png
 npm-debug.log
 pnpm-debug.log
 README.md
