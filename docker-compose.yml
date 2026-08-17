@@ -39,8 +39,6 @@ services:
         condition: service_completed_successfully
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-emarket}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-emarket}?schema=public
-      APP_BASIC_AUTH_USER: ${APP_BASIC_AUTH_USER:?Set APP_BASIC_AUTH_USER in .env}
-      APP_BASIC_AUTH_PASSWORD: ${APP_BASIC_AUTH_PASSWORD:?Set APP_BASIC_AUTH_PASSWORD in .env}
       NODE_ENV: production
       PORT: 3000
     ports:
