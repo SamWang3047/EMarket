@@ -8,6 +8,7 @@
     "dev": "next dev --turbopack --hostname 127.0.0.1 --port 4510",
     "build": "next build",
     "postbuild": "node scripts/prepare-standalone.mjs",
+    "vercel-build": "prisma generate && node scripts/migrate-production.mjs && next build",
     "start": "node .next/standalone/server.js",
     "lint": "eslint . --max-warnings=0",
     "test": "pnpm exec vitest run",
